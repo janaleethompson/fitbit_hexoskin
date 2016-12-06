@@ -1,6 +1,6 @@
 library(shiny)
 library(dygraphs)
-source("~/Desktop/plots/for app.R")
+source("~/Documents/gs/fitbit_hexoskin/app.R")
 
 shinyServer(function(input, output) {
   
