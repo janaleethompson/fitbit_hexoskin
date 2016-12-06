@@ -4,14 +4,18 @@ library(ggthemes)
 library(scales)
 library(stringr)
 
+setwd("data")
+
 ## Exploratory plots for fitbit and hexoskin data 
 
 ### Fitbit 
 
 fitbit <- function(id, download_range = "20161105_20161205", 
-                   dir = "~/Desktop/plots") {
+                   dir = NULL) {
   
-  setwd(dir)
+  if (!is.null(dir)){
+    setwd(dir)
+  }
   
   steps_file <- paste0(id, "_minuteStepsNarrow_", download_range, ".csv")
   fb_steps <- read.csv(steps_file)
@@ -52,7 +56,7 @@ fitbit <- function(id, download_range = "20161105_20161205",
 
 ### Hexoskin
 
-hexoskin <- function(id, fb_start = NULL, dir = "~/Desktop/plots") {
+hexoskin <- function(id, fb_start = NULL, dir = NULL) {
   
   df <- data.frame("hexo" = c("record-111413.csv", "record-111955.csv", 
                             "record-111555.csv", "record-111902.csv", 
@@ -61,14 +65,12 @@ hexoskin <- function(id, fb_start = NULL, dir = "~/Desktop/plots") {
   
   loc <- which(df$fb == id)
   file <- as.character(df[loc,1])
-
-  dir_original <- getwd()
   
-  setwd(dir)
+  if (!is.null(dir)){
+    setwd(dir)
+  }
   
   hexo <- read.csv(file)
-  
-  setwd(dir_original)
   
   hexo_df <- hexo %>%
     rename(time = time..s.256., 
@@ -146,9 +148,9 @@ hexoskin <- function(id, fb_start = NULL, dir = "~/Desktop/plots") {
 }
 
 heartrate_df <- function(id, filter = TRUE, 
-                         h_dir = "~/Desktop/plots", 
+                         h_dir = NULL, 
                          download_range = "20161105_20161205", 
-                         fb_dir = "~/Desktop/plots") {
+                         fb_dir = NULL) {
   
   fb <- fitbit(id, download_range, fb_dir)
   fb_hr <- fb$hr
