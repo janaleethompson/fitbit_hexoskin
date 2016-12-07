@@ -1,6 +1,6 @@
 library(shiny)
 library(dygraphs)
-source("app.R")
+source("helpers.R")
 
 shinyServer(function(input, output) {
   

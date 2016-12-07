@@ -1,0 +1,284 @@
+library(tidyverse)
+library(lubridate)
+library(ggthemes)
+library(scales)
+library(stringr)
+
+## Exploratory plots for fitbit and hexoskin data 
+
+### Fitbit 
+
+fitbit <- function(id, download_range = "20161105_20161205") {
+
+  steps_file <- paste0(id, "_minuteStepsNarrow_", download_range)
+  fb_steps <- readRDS(paste0("data/", steps_file, ".rds"))
+  
+  fb_steps <- fb_steps %>%
+    mutate(date_time = as.POSIXct(ActivityMinute, 
+                                  format = "%m/%d/%Y %I:%M:%S %p", 
+                                  tz = "UTC")) %>%
+    select(date_time, Steps) %>%
+    rename(steps = Steps) %>%
+    group_by(date_time = cut(date_time, breaks = "60 min")) %>%
+    summarize(steps = sum(steps, na.rm= TRUE)) %>%
+    ungroup(date_time) %>%
+    mutate(steps = round(steps, 0), 
+           date_time = lubridate::ymd_hms(date_time))
+    
+  hr_file <- paste0(id, "_heartrate_seconds_", download_range)
+  fb_hr <- readRDS(paste0("data/", hr_file, ".rds"))
+  
+  fb_hr <- fb_hr %>%
+    mutate(date_time = as.POSIXct(Time, 
+                                  format = "%m/%d/%Y %I:%M:%S %p", 
+                                  tz = "UTC")) %>%
+    select(date_time, Value) %>%
+    rename(heart_rate = Value) %>%
+    unique()
+  
+  start <- fb_hr[1,1]
+  sec <- lubridate::second(start)
+  
+  fb <- list("steps" = fb_steps, 
+             "hr" = fb_hr, 
+             "hr_start" = sec)
+  
+  return(fb)
+  
+}
+
+### Hexoskin
+
+hexoskin <- function(id, fb_start = NULL) {
+  
+  df <- data.frame("hexo" = c("record-111413", "record-111955", 
+                            "record-111555", "record-111902", 
+                            "record-112875"), 
+                 "fb" = c("300n", "308n", "501n", "601n", "203q"))
+  
+  loc <- which(df$fb == id)
+  file <- as.character(df[loc,1])
+
+  hexo <- readRDS(paste0("data/", file, ".rds"))
+  
+  hexo_df <- hexo %>%
+    rename(time = time..s.256., 
+           breathing_rate = breathing_rate..rpm...api.datatype.33..,
+           minute_vent = minute_ventilation..mL.min...api.datatype.36..,
+           sleep = sleep_position..NA...api.datatype.270..,
+           activity = activity..g...api.datatype.49..,
+           heart_rate = heart_rate..bpm...api.datatype.19..,
+           cadence = cadence..spm...api.datatype.53..) %>%
+    mutate(date_time = (ymd("19700101") + dseconds(time/256 - 21600)) - 3600) %>%
+    select(-time, -minute_vent, -sleep, -activity)
+  
+  hexo <- hexo_df[,c(4, 2, 1, 3)]
+  
+  hexo_hr <- select(hexo, date_time, heart_rate) %>%
+    mutate(date_time = force_tz(date_time, tzone = "MST")) %>%
+    mutate(sec = as.integer(lubridate::second(date_time)))
+  
+  if (!is.null(fb_start)) {
+    df <- filter(hexo_hr, sec == fb_start)
+    hexo_hr <- filter(hexo_hr, date_time >= min(df$date_time))
+  }
+  
+  hr_out <- hexo_hr %>%
+    group_by(date_time = cut(date_time, breaks = "15 sec")) %>%
+    summarize(heart_rate = mean(heart_rate, na.rm = TRUE)) %>%
+    ungroup(date_time) %>%
+    mutate(heart_rate = round(heart_rate, 0), 
+           date_time = lubridate::ymd_hms(date_time)) %>%
+    unique() 
+  
+  hexo_breathing <- select(hexo, date_time, breathing_rate) %>% 
+    group_by(date_time = cut(date_time, breaks = "1 min")) %>%
+    summarize(breathing_rate = mean(breathing_rate, na.rm = TRUE)) %>%
+    ungroup(date_time) %>%
+    mutate(breathing_rate = round(breathing_rate, 0), 
+           date_time = lubridate::ymd_hms(date_time)) %>%
+    unique() 
+  
+  hexo_steps <- select(hexo, date_time, cadence) %>% 
+    rename(steps = cadence) %>%
+    select(date_time, steps) %>% 
+    mutate(steps = steps/60) %>%
+    group_by(date_time = cut(date_time, breaks = "60 min")) %>%
+    summarize(steps = sum(steps, na.rm = TRUE)) %>%
+    ungroup(date_time) %>%
+    
+    mutate(date_time = lubridate::ymd_hms(date_time), 
+           hour = lubridate::hour(date_time))
+          
+  list <- stringr::str_split(as.character(hexo_steps$date_time), " ")
+  df <- lapply(list, tibble::as_tibble)
+  
+  for(i in 1:length(df)) {
+    df[[i]] <- df[[i]][1,]
+  }
+  
+  df <- bind_rows(df)
+  
+  hexo_steps <- bind_cols(hexo_steps, df) 
+  
+  hexo_steps <- hexo_steps %>%
+    mutate(temp = paste(hexo_steps$value, paste0(hexo_steps$hour, ":00:00")), 
+           temp = lubridate::ymd_hms(temp)) %>%
+    select(temp, steps) %>%
+    rename(date_time = temp)
+    
+  
+  hexo <- list("hr" = hr_out, 
+               "breathing" = hexo_breathing, 
+               "steps" = hexo_steps)
+  
+  return(hexo)
+  
+}
+
+heartrate_df <- function(id, filter = TRUE,
+                         download_range = "20161105_20161205") {
+  
+  fb <- fitbit(id, download_range)
+  fb_hr <- fb$hr
+  fb_start <- fb$hr_start 
+  
+  hexo <- hexoskin(id, fb_start)$hr
+  
+  if (filter == TRUE) {
+    
+    if (min(hexo$date_time) < min(fb_hr$date_time)) { 
+      hexo <- filter(hexo, date_time >= min(fb_hr$date_time))
+    } else {
+      fb_hr <- filter(fb_hr, date_time >= min(hexo$date_time))
+    }
+    
+    if (max(hexo$date_time) < max(fb_hr$date_time)) {
+      fb_hr <- filter(fb_hr, date_time <= max(hexo$date_time))
+    } else {
+      hexo <- filter(hexo, date_time <= max(fb_hr$date_time))
+    }
+    
+    hexo <- hexo %>%
+      filter(date_time >= min(fb_hr$date_time) & date_time <= max(fb_hr$date_time))
+    
+  }
+  
+  hr <- full_join(hexo, fb_hr, by = "date_time") %>%
+    rename(hexoskin = heart_rate.x,
+           fitbit = heart_rate.y) %>%
+    gather("Device", "heartrate", 2:3)
+
+  
+}
+
+hr_plot <- function(id, filter = TRUE, download_range = "20161105_20161205") {
+  
+  to_plot <- heartrate_df(id, filter, download_range)
+  
+  plot <- ggplot(to_plot, aes(x = date_time, y = heartrate, color = Device)) + 
+    geom_point(alpha = 0.5) + 
+    scale_x_datetime(name = NULL, breaks = scales::date_breaks("1 hour"), 
+                     date_labels = "%I:%M %p") +
+    theme_few() + 
+#    ggtitle(id) + 
+    ylab("Heart Rate (15 sec. intervals)") + 
+    scale_colour_brewer(palette = "Set1") 
+  
+  return(plot)
+  
+}
+
+#hr_plot("300n")
+#hr_plot("308n")
+#hr_plot("501n")
+#hr_plot("601n")
+#hr_plot("203q")
+
+### Hexoskin breathing rate plots 
+
+br_plot <- function(id, fb_start = NULL) {
+  
+
+  df <- hexoskin(id, fb_start)$breathing
+
+
+  plot <- ggplot(df, aes(x = date_time, y = breathing_rate)) + 
+    geom_line() + 
+    theme_few() + 
+    ylab("Breathing Rate (1 min. intervals)") + 
+    scale_x_datetime(name = NULL, breaks = scales::date_breaks("1 hour"), 
+    date_labels = "%I:%M %p") #+
+#    ggtitle(id) 
+
+
+  return(plot)
+
+}
+
+#br_plot("300n") 
+#br_plot("308n") 
+#br_plot("501n") 
+#br_plot("601n") 
+#br_plot("203q")
+
+
+stepcount_df <- function(id, filter = TRUE,
+                         download_range = "20161105_20161205") {
+
+  fb <- fitbit(id, download_range)
+  fb_steps <- fb$steps
+  
+  fb_steps <- filter(fb_steps, steps != 0)
+
+  hexo <- hexoskin(id, fb_start = NULL)$steps
+
+  if (filter == TRUE) {
+
+  if (min(hexo$date_time) < min(fb_steps$date_time)) { 
+    hexo <- filter(hexo, date_time >= min(fb_steps$date_time))
+  } else {
+    fb_steps <- filter(fb_steps, date_time >= min(hexo$date_time))
+  }
+
+  if (max(hexo$date_time) < max(fb_steps$date_time)) {
+    fb_steps <- filter(fb_steps, date_time <= max(hexo$date_time))
+  } else {
+    hexo <- filter(hexo, date_time <= max(fb_steps$date_time))
+  }
+
+  hexo <- hexo %>%
+  filter(date_time >= min(fb_steps$date_time) & date_time <= max(fb_steps$date_time))
+
+  }
+
+  steps <- full_join(hexo, fb_steps, by = "date_time") %>%
+    rename(hexoskin = steps.x,
+    fitbit = steps.y) %>%
+    gather("Device", "steps", 2:3)
+
+}
+
+stepcount_plot <- function(id, filter = TRUE, 
+                           download_range = "20161105_20161205") {
+
+  to_plot <- stepcount_df(id, filter, download_range)
+  
+  plot <- ggplot(to_plot, aes(x = date_time, y = steps, fill = Device)) + 
+    geom_bar(stat = "identity", position = "dodge", alpha = 0.75) +
+    scale_x_datetime(name = NULL, breaks = scales::date_breaks("1 hour"), 
+    date_labels = "%I:%M %p") +
+    theme_few() + 
+ #   ggtitle(id) + 
+    ylab("Step Count per hour") + 
+    scale_fill_brewer(palette = "Set1") 
+
+  return(plot)
+
+}
+
+#stepcount_plot("300n")
+#stepcount_plot("308n")
+#stepcount_plot("501n")
+#stepcount_plot("601n")
+#stepcount_plot("203q")

@@ -1,0 +1,9 @@
+name: fitbit_hexoskin
+account: leighseverson
+server: shinyapps.io
+appId: 142660
+bundleId: 638206
+url: https://leighseverson.shinyapps.io/fitbit_hexoskin/
+when: 1481061000.7135
+asMultiple: FALSE
+asStatic: FALSE
