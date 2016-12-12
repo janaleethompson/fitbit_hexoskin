@@ -75,21 +75,22 @@ hexoskin <- function(id, fb_start = NULL) {
   hexo <- hexo_df[,c(4, 2, 1, 3)]
   
   hexo_hr <- select(hexo, date_time, heart_rate) %>%
-    mutate(date_time = force_tz(date_time, tzone = "MST")) %>%
+    mutate(date_time = force_tz(date_time, tzone = "UTC")) %>%
     mutate(sec = as.integer(lubridate::second(date_time)))
   
-  if (!is.null(fb_start)) {
-    df <- filter(hexo_hr, sec == fb_start)
-    hexo_hr <- filter(hexo_hr, date_time >= min(df$date_time))
-  }
+#  if (!is.null(fb_start)) {
+#    df <- filter(hexo_hr, sec == fb_start)
+#    hexo_hr <- filter(hexo_hr, date_time >= min(df$date_time))
+#  }
   
-  hr_out <- hexo_hr %>%
-    group_by(date_time = cut(date_time, breaks = "15 sec")) %>%
-    summarize(heart_rate = mean(heart_rate, na.rm = TRUE)) %>%
-    ungroup(date_time) %>%
-    mutate(heart_rate = round(heart_rate, 0), 
-           date_time = lubridate::ymd_hms(date_time)) %>%
-    unique() 
+  hr_out <- hexo_hr 
+    # %>%
+#    group_by(date_time = cut(date_time, breaks = "15 sec")) %>%
+#    summarize(heart_rate = mean(heart_rate, na.rm = TRUE)) %>%
+#    ungroup(date_time) %>%
+#    mutate(heart_rate = round(heart_rate, 0), 
+#           date_time = lubridate::ymd_hms(date_time)) %>%
+#    unique() 
   
   hexo_breathing <- select(hexo, date_time, breathing_rate) %>% 
     group_by(date_time = cut(date_time, breaks = "1 min")) %>%
@@ -143,7 +144,8 @@ heartrate_df <- function(id, filter = TRUE,
   fb_hr <- fb$hr
   fb_start <- fb$hr_start 
   
-  hexo <- hexoskin(id, fb_start)$hr
+  hexo <- hexoskin(id)$hr
+  hexo <- select(hexo, -sec)
   
   if (filter == TRUE) {
     
@@ -164,6 +166,16 @@ heartrate_df <- function(id, filter = TRUE,
     
   }
   
+  hexo <- hexo %>%
+    group_by(date_time = cut(date_time, breaks = "5 sec")) %>%
+    summarize(heart_rate = mean(heart_rate, na.rm = TRUE)) %>%
+    ungroup(date_time) %>%
+    mutate(heart_rate = round(heart_rate, 0), 
+           date_time = lubridate::ymd_hms(date_time))
+  
+  hexo <- unique(hexo)
+  fb_hr <- unique(fb_hr)
+  
   hr <- full_join(hexo, fb_hr, by = "date_time") %>%
     rename(hexoskin = heart_rate.x,
            fitbit = heart_rate.y) %>%
@@ -172,17 +184,21 @@ heartrate_df <- function(id, filter = TRUE,
   
 }
 
+
+
+
+
 hr_plot <- function(id, filter = TRUE, download_range = "20161105_20161205") {
   
   to_plot <- heartrate_df(id, filter, download_range)
   
   plot <- ggplot(to_plot, aes(x = date_time, y = heartrate, color = Device)) + 
-    geom_point(alpha = 0.5) + 
+    geom_line(alpha = 0.75) + 
     scale_x_datetime(name = NULL, breaks = scales::date_breaks("1 hour"), 
                      date_labels = "%I:%M %p") +
     theme_few() + 
 #    ggtitle(id) + 
-    ylab("Heart Rate (15 sec. intervals)") + 
+    ylab("Heart Rate") + 
     scale_colour_brewer(palette = "Set1") 
   
   return(plot)
