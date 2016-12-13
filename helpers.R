@@ -119,7 +119,7 @@ hexoskin <- function(id, fb_start = NULL) {
   
 }
 
-heartrate_df <- function(id, filter = TRUE,
+heartrate_df <- function(id, hr_breaks = "5 sec", filter = TRUE,
                          download_range = "20161105_20161205") {
   
   fb <- fitbit(id, download_range)
@@ -148,7 +148,7 @@ heartrate_df <- function(id, filter = TRUE,
   }
   
   hexo <- hexo %>%
-    group_by(date_time = cut(date_time, breaks = "5 sec")) %>%
+    group_by(date_time = cut(date_time, breaks = hr_breaks)) %>%
     summarize(heart_rate = mean(heart_rate, na.rm = TRUE)) %>%
     ungroup(date_time) %>%
     mutate(heart_rate = round(heart_rate, 0), 
@@ -166,9 +166,10 @@ heartrate_df <- function(id, filter = TRUE,
 }
 
 
-hr_plot <- function(id, filter = TRUE, download_range = "20161105_20161205") {
+hr_plot <- function(id, hr_breaks = "5 sec", 
+                    filter = TRUE, download_range = "20161105_20161205") {
   
-  to_plot <- heartrate_df(id, filter, download_range)
+  to_plot <- heartrate_df(id, hr_breaks, filter, download_range)
   
   plot <- ggplot(to_plot, aes(x = date_time, y = heartrate, color = Device)) + 
     geom_line(alpha = 0.75) + 
@@ -249,7 +250,6 @@ stepcount_plot <- function(id, filter = TRUE,
     scale_x_datetime(name = NULL, breaks = scales::date_breaks("1 hour"), 
     date_labels = "%I:%M %p") +
     theme_few() + 
- #   ggtitle(id) + 
     ylab("Step Count per hour") + 
     scale_fill_brewer(palette = "Set1") 
 
