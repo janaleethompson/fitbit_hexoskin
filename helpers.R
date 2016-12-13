@@ -45,7 +45,7 @@ fitbit <- function(id, download_range = "20161105_20161205") {
 
 ### Hexoskin
 
-hexoskin <- function(id, fb_start = NULL) {
+hexoskin <- function(id) {
   
   df <- data.frame("hexo" = c("record-111413", "record-111955", 
                             "record-111555", "record-111902", 
@@ -185,10 +185,10 @@ hr_plot <- function(id, hr_breaks = "5 sec",
 
 ### Hexoskin breathing rate plots 
 
-br_plot <- function(id, fb_start = NULL) {
+br_plot <- function(id) {
   
 
-  df <- hexoskin(id, fb_start)$breathing
+  df <- hexoskin(id)$breathing
 
 
   plot <- ggplot(df, aes(x = date_time, y = breathing_rate)) + 
@@ -212,7 +212,7 @@ stepcount_df <- function(id, filter = TRUE,
   
   fb_steps <- filter(fb_steps, steps != 0)
 
-  hexo <- hexoskin(id, fb_start = NULL)$steps
+  hexo <- hexoskin(id)$steps
 
   if (filter == TRUE) {
 
