@@ -35,13 +35,9 @@ fitbit <- function(id, download_range = "20161105_20161205") {
     select(date_time, Value) %>%
     rename(heart_rate = Value) %>%
     unique()
-  
-  start <- fb_hr[1,1]
-  sec <- lubridate::second(start)
-  
+
   fb <- list("steps" = fb_steps, 
-             "hr" = fb_hr, 
-             "hr_start" = sec)
+             "hr" = fb_hr)
   
   return(fb)
   
@@ -77,21 +73,7 @@ hexoskin <- function(id, fb_start = NULL) {
   hexo_hr <- select(hexo, date_time, heart_rate) %>%
     mutate(date_time = force_tz(date_time, tzone = "UTC")) %>%
     mutate(sec = as.integer(lubridate::second(date_time)))
-  
-#  if (!is.null(fb_start)) {
-#    df <- filter(hexo_hr, sec == fb_start)
-#    hexo_hr <- filter(hexo_hr, date_time >= min(df$date_time))
-#  }
-  
-  hr_out <- hexo_hr 
-    # %>%
-#    group_by(date_time = cut(date_time, breaks = "15 sec")) %>%
-#    summarize(heart_rate = mean(heart_rate, na.rm = TRUE)) %>%
-#    ungroup(date_time) %>%
-#    mutate(heart_rate = round(heart_rate, 0), 
-#           date_time = lubridate::ymd_hms(date_time)) %>%
-#    unique() 
-  
+
   hexo_breathing <- select(hexo, date_time, breathing_rate) %>% 
     group_by(date_time = cut(date_time, breaks = "1 min")) %>%
     summarize(breathing_rate = mean(breathing_rate, na.rm = TRUE)) %>%
@@ -129,7 +111,7 @@ hexoskin <- function(id, fb_start = NULL) {
     rename(date_time = temp)
     
   
-  hexo <- list("hr" = hr_out, 
+  hexo <- list("hr" = hexo_hr, 
                "breathing" = hexo_breathing, 
                "steps" = hexo_steps)
   
@@ -142,7 +124,6 @@ heartrate_df <- function(id, filter = TRUE,
   
   fb <- fitbit(id, download_range)
   fb_hr <- fb$hr
-  fb_start <- fb$hr_start 
   
   hexo <- hexoskin(id)$hr
   hexo <- select(hexo, -sec)
@@ -185,9 +166,6 @@ heartrate_df <- function(id, filter = TRUE,
 }
 
 
-
-
-
 hr_plot <- function(id, filter = TRUE, download_range = "20161105_20161205") {
   
   to_plot <- heartrate_df(id, filter, download_range)
@@ -197,19 +175,12 @@ hr_plot <- function(id, filter = TRUE, download_range = "20161105_20161205") {
     scale_x_datetime(name = NULL, breaks = scales::date_breaks("1 hour"), 
                      date_labels = "%I:%M %p") +
     theme_few() + 
-#    ggtitle(id) + 
     ylab("Heart Rate") + 
     scale_colour_brewer(palette = "Set1") 
   
   return(plot)
   
 }
-
-#hr_plot("300n")
-#hr_plot("308n")
-#hr_plot("501n")
-#hr_plot("601n")
-#hr_plot("203q")
 
 ### Hexoskin breathing rate plots 
 
@@ -224,19 +195,12 @@ br_plot <- function(id, fb_start = NULL) {
     theme_few() + 
     ylab("Breathing Rate (1 min. intervals)") + 
     scale_x_datetime(name = NULL, breaks = scales::date_breaks("1 hour"), 
-    date_labels = "%I:%M %p") #+
-#    ggtitle(id) 
+    date_labels = "%I:%M %p")
 
 
   return(plot)
 
 }
-
-#br_plot("300n") 
-#br_plot("308n") 
-#br_plot("501n") 
-#br_plot("601n") 
-#br_plot("203q")
 
 
 stepcount_df <- function(id, filter = TRUE,
@@ -293,8 +257,3 @@ stepcount_plot <- function(id, filter = TRUE,
 
 }
 
-#stepcount_plot("300n")
-#stepcount_plot("308n")
-#stepcount_plot("501n")
-#stepcount_plot("601n")
-#stepcount_plot("203q")
