@@ -8,7 +8,8 @@ library(stringr)
 
 ### Fitbit 
 
-fitbit <- function(id, download_range = "20161105_20161205") {
+fitbit <- function(id, fb_hr_breaks = "1 min", 
+                   download_range = "20161105_20161205") {
 
   steps_file <- paste0(id, "_minuteStepsNarrow_", download_range)
   fb_steps <- readRDS(paste0("data/", steps_file, ".rds"))
@@ -34,8 +35,12 @@ fitbit <- function(id, download_range = "20161105_20161205") {
                                   tz = "UTC")) %>%
     select(date_time, Value) %>%
     rename(heart_rate = Value) %>%
-    unique()
-
+    group_by(date_time = cut(date_time, breaks = fb_breaks)) %>%
+    summarize(heart_rate = mean(heart_rate, na.rm = TRUE)) %>%
+    ungroup(date_time) %>%
+    mutate(heart_rate = round(heart_rate, 0), 
+           date_time = lubridate::ymd_hms(date_time))
+    
   fb <- list("steps" = fb_steps, 
              "hr" = fb_hr)
   
@@ -119,14 +124,14 @@ hexoskin <- function(id) {
   
 }
 
-heartrate_df <- function(id, hr_breaks = "5 sec", filter = TRUE,
+heartrate_df <- function(id, fb_hr_breaks = "1 min", 
+                         h_hr_breaks = "1 min", filter = TRUE,
                          download_range = "20161105_20161205") {
   
-  fb <- fitbit(id, download_range)
+  fb <- fitbit(id, fb_hr_breaks, download_range)
   fb_hr <- fb$hr
   
   hexo <- hexoskin(id)$hr
-  hexo <- select(hexo, -sec)
   
   if (filter == TRUE) {
     
@@ -148,7 +153,7 @@ heartrate_df <- function(id, hr_breaks = "5 sec", filter = TRUE,
   }
   
   hexo <- hexo %>%
-    group_by(date_time = cut(date_time, breaks = hr_breaks)) %>%
+    group_by(date_time = cut(date_time, breaks = h_hr_breaks)) %>%
     summarize(heart_rate = mean(heart_rate, na.rm = TRUE)) %>%
     ungroup(date_time) %>%
     mutate(heart_rate = round(heart_rate, 0), 
@@ -161,19 +166,21 @@ heartrate_df <- function(id, hr_breaks = "5 sec", filter = TRUE,
     rename(hexoskin = heart_rate.x,
            fitbit = heart_rate.y) %>%
     gather("Device", "heartrate", 2:3)
-
   
+  return(hr)
+
 }
 
 
-hr_plot <- function(id, hr_breaks = "5 sec", 
-                    filter = TRUE, download_range = "20161105_20161205") {
+hr_plot <- function(id, fb_hr_breaks = "1 min", h_hr_breaks = "1 min", 
+                    filter = TRUE, download_range = "20161105_20161205", 
+                    date_break = "30 min") {
   
-  to_plot <- heartrate_df(id, hr_breaks, filter, download_range)
+  to_plot <- heartrate_df(id, fb_hr_breaks, h_hr_breaks, filter, download_range)
   
   plot <- ggplot(to_plot, aes(x = date_time, y = heartrate, color = Device)) + 
     geom_line(alpha = 0.75) + 
-    scale_x_datetime(name = NULL, breaks = scales::date_breaks("1 hour"), 
+    scale_x_datetime(name = NULL, breaks = scales::date_breaks(date_break), 
                      date_labels = "%I:%M %p") +
     theme_few() + 
     ylab("Heart Rate") + 
@@ -185,7 +192,7 @@ hr_plot <- function(id, hr_breaks = "5 sec",
 
 ### Hexoskin breathing rate plots 
 
-br_plot <- function(id) {
+br_plot <- function(id, date_break = "30 min") {
   
 
   df <- hexoskin(id)$breathing
@@ -195,7 +202,7 @@ br_plot <- function(id) {
     geom_line() + 
     theme_few() + 
     ylab("Breathing Rate (1 min. intervals)") + 
-    scale_x_datetime(name = NULL, breaks = scales::date_breaks("1 hour"), 
+    scale_x_datetime(name = NULL, breaks = scales::date_breaks(date_break), 
     date_labels = "%I:%M %p")
 
 
@@ -237,6 +244,8 @@ stepcount_df <- function(id, filter = TRUE,
     rename(hexoskin = steps.x,
     fitbit = steps.y) %>%
     gather("Device", "steps", 2:3)
+  
+  return(steps)
 
 }
 
@@ -256,4 +265,12 @@ stepcount_plot <- function(id, filter = TRUE,
   return(plot)
 
 }
+
+
+
+
+
+# aggregated data - want to be able to aggreagate across several workers. 
+
+
 
