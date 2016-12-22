@@ -180,20 +180,40 @@ hr_plot <- function(id, fb_hr_breaks = "1 min", h_hr_breaks = "1 min",
   
   if (fb == FALSE) {
     to_plot <- filter(to_plot, Device != "fitbit")
+    
+    plot <- ggplot(to_plot, aes(x = date_time, y = heartrate, color = Device)) + 
+      geom_line(alpha = 0.75) + 
+      scale_x_datetime(name = NULL, breaks = scales::date_breaks(date_break), 
+                       date_labels = "%I:%M %p") +
+      theme_few() + 
+      ylab("Heart Rate") + 
+      scale_color_manual(values = "#377EB8")
   }
   
-  if (h == FALSE) {
+  else if (h == FALSE) {
     to_plot <- filter(to_plot, Device != "hexoskin")
+    
+    plot <- ggplot(to_plot, aes(x = date_time, y = heartrate, color = Device)) + 
+      geom_line(alpha = 0.75) + 
+      scale_x_datetime(name = NULL, breaks = scales::date_breaks(date_break), 
+                       date_labels = "%I:%M %p") +
+      theme_few() + 
+      ylab("Heart Rate") + 
+      scale_color_manual(values = "#E41A1C")
   }
   
-  plot <- ggplot(to_plot, aes(x = date_time, y = heartrate, color = Device)) + 
-    geom_line(alpha = 0.75) + 
-    scale_x_datetime(name = NULL, breaks = scales::date_breaks(date_break), 
-                     date_labels = "%I:%M %p") +
-    theme_few() + 
-    ylab("Heart Rate") + 
-    scale_colour_brewer(palette = "Set1") 
-  
+  else {
+    
+    plot <- ggplot(to_plot, aes(x = date_time, y = heartrate, color = Device)) + 
+      geom_line(alpha = 0.75) + 
+      scale_x_datetime(name = NULL, breaks = scales::date_breaks(date_break), 
+                       date_labels = "%I:%M %p") +
+      theme_few() + 
+      ylab("Heart Rate") + 
+      scale_colour_brewer(palette = "Set1") 
+    
+  }
+
   return(plot)
   
 }

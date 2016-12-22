@@ -7,7 +7,7 @@ shinyServer(function(input, output) {
   output$heartrate <- renderPlot({
 
    hr_plot(input$id, fb_hr_breaks = input$avg, h_hr_breaks = input$avg, 
-           date_break = input$date)
+           date_break = input$date, fb = input$fb, h = input$hex)
     
   })
   
