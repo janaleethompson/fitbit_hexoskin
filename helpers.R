@@ -35,7 +35,7 @@ fitbit <- function(id, fb_hr_breaks = "1 min",
                                   tz = "UTC")) %>%
     select(date_time, Value) %>%
     rename(heart_rate = Value) %>%
-    group_by(date_time = cut(date_time, breaks = fb_breaks)) %>%
+    group_by(date_time = cut(date_time, breaks = fb_hr_breaks)) %>%
     summarize(heart_rate = mean(heart_rate, na.rm = TRUE)) %>%
     ungroup(date_time) %>%
     mutate(heart_rate = round(heart_rate, 0), 
@@ -174,9 +174,17 @@ heartrate_df <- function(id, fb_hr_breaks = "1 min",
 
 hr_plot <- function(id, fb_hr_breaks = "1 min", h_hr_breaks = "1 min", 
                     filter = TRUE, download_range = "20161105_20161205", 
-                    date_break = "30 min") {
+                    date_break = "30 min", fb = TRUE, h = TRUE) {
   
   to_plot <- heartrate_df(id, fb_hr_breaks, h_hr_breaks, filter, download_range)
+  
+  if (fb == FALSE) {
+    to_plot <- filter(to_plot, Device != "fitbit")
+  }
+  
+  if (h == FALSE) {
+    to_plot <- filter(to_plot, Device != "hexoskin")
+  }
   
   plot <- ggplot(to_plot, aes(x = date_time, y = heartrate, color = Device)) + 
     geom_line(alpha = 0.75) + 
@@ -211,10 +219,10 @@ br_plot <- function(id, date_break = "30 min") {
 }
 
 
-stepcount_df <- function(id, filter = TRUE,
+stepcount_df <- function(id, fb_hr_breaks = "1 min", filter = TRUE,
                          download_range = "20161105_20161205") {
 
-  fb <- fitbit(id, download_range)
+  fb <- fitbit(id, fb_hr_breaks, download_range)
   fb_steps <- fb$steps
   
   fb_steps <- filter(fb_steps, steps != 0)
@@ -249,15 +257,15 @@ stepcount_df <- function(id, filter = TRUE,
 
 }
 
-stepcount_plot <- function(id, filter = TRUE, 
+stepcount_plot <- function(id, fb_hr_breaks = "1 min", filter = TRUE, 
                            download_range = "20161105_20161205") {
 
-  to_plot <- stepcount_df(id, filter, download_range)
+  to_plot <- stepcount_df(id, fb_hr_breaks, filter, download_range)
   
   plot <- ggplot(to_plot, aes(x = date_time, y = steps, fill = Device)) + 
     geom_bar(stat = "identity", position = "dodge", alpha = 0.75) +
-    scale_x_datetime(name = NULL, breaks = scales::date_breaks("1 hour"), 
-    date_labels = "%I:%M %p") +
+  #  scale_x_datetime(name = NULL, breaks = scales::date_breaks("60 min"), 
+  #  date_labels = "%I:%M %p") +
     theme_few() + 
     ylab("Step Count per hour") + 
     scale_fill_brewer(palette = "Set1") 
@@ -265,12 +273,3 @@ stepcount_plot <- function(id, filter = TRUE,
   return(plot)
 
 }
-
-
-
-
-
-# aggregated data - want to be able to aggreagate across several workers. 
-
-
-
