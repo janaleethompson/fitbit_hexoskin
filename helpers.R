@@ -50,7 +50,7 @@ fitbit <- function(id, fb_hr_breaks = "1 min",
 
 ### Hexoskin
 
-hexoskin <- function(id) {
+hexoskin <- function(id, br_breaks = "1 min") {
   
   df <- data.frame("hexo" = c("record-111413", "record-111955", 
                             "record-111555", "record-111902", 
@@ -80,7 +80,7 @@ hexoskin <- function(id) {
     mutate(sec = as.integer(lubridate::second(date_time)))
 
   hexo_breathing <- select(hexo, date_time, breathing_rate) %>% 
-    group_by(date_time = cut(date_time, breaks = "1 min")) %>%
+    group_by(date_time = cut(date_time, breaks = br_breaks)) %>%
     summarize(breathing_rate = mean(breathing_rate, na.rm = TRUE)) %>%
     ungroup(date_time) %>%
     mutate(breathing_rate = round(breathing_rate, 0), 
@@ -124,14 +124,14 @@ hexoskin <- function(id) {
   
 }
 
-heartrate_df <- function(id, fb_hr_breaks = "1 min", 
+heartrate_df <- function(id, br_breaks = "1 min", fb_hr_breaks = "1 min", 
                          h_hr_breaks = "1 min", filter = TRUE,
                          download_range = "20161105_20161205") {
   
   fb <- fitbit(id, fb_hr_breaks, download_range)
   fb_hr <- fb$hr
   
-  hexo <- hexoskin(id)$hr
+  hexo <- hexoskin(id, br_breaks)$hr
   
   if (filter == TRUE) {
     
@@ -172,11 +172,13 @@ heartrate_df <- function(id, fb_hr_breaks = "1 min",
 }
 
 
-hr_plot <- function(id, fb_hr_breaks = "1 min", h_hr_breaks = "1 min", 
-                    filter = TRUE, download_range = "20161105_20161205", 
+hr_plot <- function(id, br_breaks = "1 min", fb_hr_breaks = "1 min",
+                    h_hr_breaks = "1 min", filter = TRUE, 
+                    download_range = "20161105_20161205", 
                     date_break = "30 min", fb = TRUE, h = TRUE) {
   
-  to_plot <- heartrate_df(id, fb_hr_breaks, h_hr_breaks, filter, download_range)
+  to_plot <- heartrate_df(id, br_breaks, fb_hr_breaks, h_hr_breaks, filter, 
+                          download_range)
   
   if (fb == FALSE) {
     to_plot <- filter(to_plot, Device != "fitbit")
@@ -220,10 +222,10 @@ hr_plot <- function(id, fb_hr_breaks = "1 min", h_hr_breaks = "1 min",
 
 ### Hexoskin breathing rate plots 
 
-br_plot <- function(id, date_break = "30 min") {
+br_plot <- function(id, br_breaks = "1 min", date_break = "30 min") {
   
 
-  df <- hexoskin(id)$breathing
+  df <- hexoskin(id, br_breaks)$breathing
 
 
   plot <- ggplot(df, aes(x = date_time, y = breathing_rate)) + 
@@ -288,8 +290,14 @@ stepcount_plot <- function(id, fb_hr_breaks = "1 min", filter = TRUE,
   #  date_labels = "%I:%M %p") +
     theme_few() + 
     ylab("Step Count per hour") + 
+    xlab("") + 
     scale_fill_brewer(palette = "Set1") 
 
   return(plot)
 
 }
+
+# zooming 
+# averaging across different participants 
+
+
