@@ -8,16 +8,16 @@ library(stringr)
 
 ### Fitbit 
 
-fitbit <- function(id, fb_hr_breaks = "1 min", 
-                   download_range = "20161105_20161205") {
+fitbit <- function(id, fb_hr_breaks = "1 min") {
 
-  steps_file <- paste0(id, "_minuteStepsNarrow_", download_range)
-  fb_steps <- readRDS(paste0("data/", steps_file, ".rds"))
+  steps_file <- paste0(id, "_fb_steps")
+  steps <- readRDS(paste0("data/", steps_file, ".rds"))
   
-  fb_steps <- fb_steps %>%
+  fb_steps <- steps %>%
     mutate(date_time = as.POSIXct(ActivityMinute, 
                                   format = "%m/%d/%Y %I:%M:%S %p", 
                                   tz = "UTC")) %>%
+ #   mutate(date_time = force_tz(date_time, tzone = "MST")) %>%
     select(date_time, Steps) %>%
     rename(steps = Steps) %>%
     group_by(date_time = cut(date_time, breaks = "60 min")) %>%
@@ -26,7 +26,7 @@ fitbit <- function(id, fb_hr_breaks = "1 min",
     mutate(steps = round(steps, 0), 
            date_time = lubridate::ymd_hms(date_time))
     
-  hr_file <- paste0(id, "_heartrate_seconds_", download_range)
+  hr_file <- paste0(id, "_fb_hr")
   fb_hr <- readRDS(paste0("data/", hr_file, ".rds"))
   
   fb_hr <- fb_hr %>%
@@ -52,15 +52,7 @@ fitbit <- function(id, fb_hr_breaks = "1 min",
 
 hexoskin <- function(id, br_breaks = "1 min") {
   
-  df <- data.frame("hexo" = c("record-111413", "record-111955", 
-                            "record-111555", "record-111902", 
-                            "record-112875"), 
-                 "fb" = c("300n", "308n", "501n", "601n", "203q"))
-  
-  loc <- which(df$fb == id)
-  file <- as.character(df[loc,1])
-
-  hexo <- readRDS(paste0("data/", file, ".rds"))
+  hexo <- readRDS(paste0("data/", id, ".rds"))
   
   hexo_df <- hexo %>%
     rename(time = time..s.256., 
@@ -76,6 +68,7 @@ hexoskin <- function(id, br_breaks = "1 min") {
   hexo <- hexo_df[,c(4, 2, 1, 3)]
   
   hexo_hr <- select(hexo, date_time, heart_rate) %>%
+  #  mutate(date_time = force_tz(date_time, tzone = "MST")) %>%
     mutate(date_time = force_tz(date_time, tzone = "UTC")) %>%
     mutate(sec = as.integer(lubridate::second(date_time)))
 
@@ -125,10 +118,9 @@ hexoskin <- function(id, br_breaks = "1 min") {
 }
 
 heartrate_df <- function(id, br_breaks = "1 min", fb_hr_breaks = "1 min", 
-                         h_hr_breaks = "1 min", filter = TRUE,
-                         download_range = "20161105_20161205") {
+                         h_hr_breaks = "1 min", filter = TRUE) {
   
-  fb <- fitbit(id, fb_hr_breaks, download_range)
+  fb <- fitbit(id, fb_hr_breaks)
   fb_hr <- fb$hr
   
   hexo <- hexoskin(id, br_breaks)$hr
@@ -174,11 +166,9 @@ heartrate_df <- function(id, br_breaks = "1 min", fb_hr_breaks = "1 min",
 
 hr_plot <- function(id, br_breaks = "1 min", fb_hr_breaks = "1 min",
                     h_hr_breaks = "1 min", filter = TRUE, 
-                    download_range = "20161105_20161205", 
                     date_break = "30 min", fb = TRUE, h = TRUE) {
   
-  to_plot <- heartrate_df(id, br_breaks, fb_hr_breaks, h_hr_breaks, filter, 
-                          download_range)
+  to_plot <- heartrate_df(id, br_breaks, fb_hr_breaks, h_hr_breaks, filter)
   
   if (fb == FALSE) {
     to_plot <- filter(to_plot, Device != "fitbit")
@@ -224,14 +214,12 @@ hr_plot <- function(id, br_breaks = "1 min", fb_hr_breaks = "1 min",
 
 br_plot <- function(id, br_breaks = "1 min", date_break = "30 min") {
   
-
   df <- hexoskin(id, br_breaks)$breathing
-
 
   plot <- ggplot(df, aes(x = date_time, y = breathing_rate)) + 
     geom_line() + 
     theme_few() + 
-    ylab("Breathing Rate (1 min. intervals)") + 
+    ylab("Breathing Rate") + 
     scale_x_datetime(name = NULL, breaks = scales::date_breaks(date_break), 
     date_labels = "%I:%M %p")
 
@@ -241,12 +229,10 @@ br_plot <- function(id, br_breaks = "1 min", date_break = "30 min") {
 }
 
 
-stepcount_df <- function(id, fb_hr_breaks = "1 min", filter = TRUE,
-                         download_range = "20161105_20161205") {
+stepcount_df <- function(id, filter = TRUE) {
 
-  fb <- fitbit(id, fb_hr_breaks, download_range)
-  fb_steps <- fb$steps
-  
+  fb_steps <- fitbit(id)$steps
+
   fb_steps <- filter(fb_steps, steps != 0)
 
   hexo <- hexoskin(id)$steps
@@ -279,15 +265,14 @@ stepcount_df <- function(id, fb_hr_breaks = "1 min", filter = TRUE,
 
 }
 
-stepcount_plot <- function(id, fb_hr_breaks = "1 min", filter = TRUE, 
-                           download_range = "20161105_20161205") {
+stepcount_plot <- function(id, filter = TRUE) {
 
-  to_plot <- stepcount_df(id, fb_hr_breaks, filter, download_range)
+  to_plot <- stepcount_df(id, filter = filter)
   
   plot <- ggplot(to_plot, aes(x = date_time, y = steps, fill = Device)) + 
     geom_bar(stat = "identity", position = "dodge", alpha = 0.75) +
-  #  scale_x_datetime(name = NULL, breaks = scales::date_breaks("60 min"), 
-  #  date_labels = "%I:%M %p") +
+    scale_x_datetime(name = NULL, breaks = scales::date_breaks("60 min"), 
+    date_labels = "%I:%M %p") +
     theme_few() + 
     ylab("Step Count per hour") + 
     xlab("") + 
@@ -297,7 +282,211 @@ stepcount_plot <- function(id, fb_hr_breaks = "1 min", filter = TRUE,
 
 }
 
-# zooming 
-# averaging across different participants 
+# aggregating over multiple ids 
+
+average_hr <- function(ids, br_breaks = "1 min", fb_hr_breaks = "1 min",
+                       h_hr_breaks = "1 min", filter = TRUE, date_break = "30 min") {
+  
+  list <- vector("list", length(ids))
+  
+  for (i in 1:length(ids)) { 
+    
+    list[[i]] <- heartrate_df(ids[i], br_breaks, fb_hr_breaks, h_hr_breaks, filter)
+    
+  }
+  
+  for (i in 1:length(ids)) { 
+    
+    list[[i]] <- spread(list[[i]], Device, heartrate)
+    
+  }
+  
+  for (i in 1:length(list)) { 
+    
+    if (i == 1) { 
+      df <- inner_join(list[[1]], list[[2]], by = "date_time")
+    } else if (i != 2) {
+      df <- inner_join(df, list[[i]], by = "date_time")
+    }
+    
+  }
+  
+  fb <- subset(df, select = grep("fitbit|date_time", names(df)))
+  
+  hex <- subset(df, select = grep("hexoskin|date_time", names(df)))
+  
+  fb <- mutate(fb, fitbit = rowMeans(fb[,2:ncol(fb)], na.rm = TRUE)) %>%
+    select(date_time, fitbit)
+  
+  hex <- mutate(hex, hexoskin = rowMeans(hex[,2:ncol(hex)], na.rm = TRUE)) %>%
+    select(date_time, hexoskin)
+  
+  df <- full_join(fb, hex, by = "date_time") %>%
+    gather("Device", "average_heartrate", 2:3)
+  
+  return(df)
+  
+}
+
+hr_plot_avg <- function(ids, br_breaks = "1 min", fb_hr_breaks = "1 min",
+                        h_hr_breaks = "1 min", filter = TRUE, date_break = "30 min", 
+                        fb = TRUE, h = TRUE) {
+  
+  if (length(ids) == 1) { 
+    
+    plot <- hr_plot(ids, br_breaks, fb_hr_breaks, h_hr_breaks, filter, date_break, fb, h)
+    
+  } else {
+      
+    to_plot <- average_hr(ids, br_breaks, fb_hr_breaks, h_hr_breaks, filter, date_break)
+    
+    if (fb == FALSE) {
+      to_plot <- filter(to_plot, Device != "fitbit")
+      
+      plot <- ggplot(to_plot, aes(x = date_time, y = average_heartrate, color = Device)) + 
+        geom_line(alpha = 0.75) + 
+        scale_x_datetime(name = NULL, breaks = scales::date_breaks(date_break), 
+                         date_labels = "%I:%M %p") +
+        theme_few() + 
+        ylab("Average Heart Rate") + 
+        scale_color_manual(values = "#377EB8")
+    }
+    
+    else if (h == FALSE) {
+      to_plot <- filter(to_plot, Device != "hexoskin")
+      
+      plot <- ggplot(to_plot, aes(x = date_time, y = average_heartrate, color = Device)) + 
+        geom_line(alpha = 0.75) + 
+        scale_x_datetime(name = NULL, breaks = scales::date_breaks(date_break), 
+                         date_labels = "%I:%M %p") +
+        theme_few() + 
+        ylab("Average Heart Rate") + 
+        scale_color_manual(values = "#E41A1C")
+    }
+    
+    else {
+      
+      plot <- ggplot(to_plot, aes(x = date_time, y = average_heartrate, color = Device)) + 
+        geom_line(alpha = 0.75) + 
+        scale_x_datetime(name = NULL, breaks = scales::date_breaks(date_break), 
+                         date_labels = "%I:%M %p") +
+        theme_few() + 
+        ylab("Average Heart Rate") + 
+        scale_colour_brewer(palette = "Set1") 
+      
+    }
+  }
+  
+  return(plot)
+  
+}
 
 
+br_avg <- function(ids, br_breaks = "1 min", date_break = "30 min") { 
+  
+  list <- vector("list", length(ids))
+  
+  for (i in 1:length(ids)) { 
+    
+    list[[i]] <- hexoskin(ids[i], br_breaks)$breathing
+    
+  }
+  
+  for (i in 1:length(list)) {
+    if(i == 1) {
+      df <- inner_join(list[[1]], list[[2]], by = "date_time")
+    } else if (i != 2) {
+      df <- inner_join(df, list[[i]], by = "date_time")
+    }
+  }
+  
+  df <- mutate(df, average_breathing_rate = rowMeans(df[,2:ncol(df)], 
+                                                     na.rm = TRUE)) %>%
+    select(date_time, average_breathing_rate)
+  
+  return(df) 
+  
+}
+
+br_plot_avg <- function(ids, br_breaks = "1 min", date_break = "30 min") {
+  
+  if (length(ids) == 1) { 
+    
+    plot <- br_plot(ids, br_breaks, date_break)
+    
+  } else {
+      
+    df <- br_avg(ids, br_breaks, date_break)
+    plot <- ggplot(df, aes(x = date_time, y = average_breathing_rate)) + 
+      geom_line() + 
+      theme_few() + 
+      ylab("Average Breathing Rate") + 
+      scale_x_datetime(name = NULL, breaks = scales::date_breaks(date_break), 
+                       date_labels = "%I:%M %p")
+    
+  }
+  
+  return(plot)
+  
+}
+
+steps_avg <- function(ids, filter = TRUE) { 
+  
+  list <- vector("list", length(ids))
+  
+  for (i in 1:length(ids)) { 
+    list[[i]] <- stepcount_df(ids[i], filter = filter)
+  }
+  
+  for (i in 1:length(ids)) { 
+    list[[i]] <- spread(list[[i]], Device, steps)
+  }
+  
+  for (i in 1:length(list)) {
+    if (i == 1) { 
+      df <- inner_join(list[[1]], list[[2]], by = "date_time")
+    } else if (i != 2) {
+        df <- inner_join(df, list[[i]], by = "date_time")
+    }
+    
+  }
+  
+  fb <- subset(df, select = grep("fitbit|date_time", names(df)))
+  
+  hex <- subset(df, select = grep("hexoskin|date_time", names(df)))
+  
+  fb <- mutate(fb, fitbit = rowMeans(fb[,2:ncol(fb)], na.rm = TRUE)) %>%
+    select(date_time, fitbit)
+  
+  hex <- mutate(hex, hexoskin = rowMeans(hex[,2:ncol(hex)], na.rm = TRUE)) %>%
+    select(date_time, hexoskin)
+  
+  df <- full_join(fb, hex, by = "date_time") %>%
+    gather("Device", "average_stepcount", 2:3)
+  
+  return(df)
+  
+}
+
+stepcount_plot_average <- function(ids, filter = TRUE) {
+  
+  if (length(ids) == 1) {
+    plot <- stepcount_plot(ids, filter)
+  } else {
+    df <- steps_avg(ids, filter)
+    plot <- ggplot(df, aes(x = date_time, y = average_stepcount, fill = Device)) + 
+      geom_bar(stat = "identity", position = "dodge", alpha = 0.75) +
+      scale_x_datetime(name = NULL, breaks = scales::date_breaks("60 min"), 
+                       date_labels = "%I:%M %p") +
+      theme_few() + 
+      ylab("Average Step Count per hour") + 
+      xlab("") + 
+      scale_fill_brewer(palette = "Set1")
+  }
+  
+}
+
+
+# want to have plots working 
+# ask janalee about shifts 
+# default plot when nothing is selected 

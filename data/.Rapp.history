@@ -1,0 +1,2 @@
+load("/Users/rachelseverson1/Documents/gs/R/fitbit_hexoskin/data/record-111317.rds")
+load("/Users/rachelseverson1/Documents/gs/R/fitbit_hexoskin/data/201q_minuteStepsNarrow_20161105_20161205.rds")
