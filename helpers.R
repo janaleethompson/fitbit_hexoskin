@@ -52,7 +52,7 @@ fitbit <- function(id, fb_hr_breaks = "1 min") {
 
 hexoskin <- function(id, br_breaks = "1 min") {
   
-  hexo <- readRDS(paste0("data/", id, ".rds"))
+  hexo <- readRDS(paste0("data/", id, "_hexoskin.rds"))
   
   hexo_df <- hexo %>%
     rename(time = time..s.256., 
