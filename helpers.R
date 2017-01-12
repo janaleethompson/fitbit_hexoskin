@@ -52,7 +52,7 @@ fitbit <- function(id, fb_hr_breaks = "1 min") {
 
 hexoskin <- function(id, br_breaks = "1 min") {
   
-  hexo <- readRDS(paste0("data/", id, "_hexoskin.rds"))
+  hexo <- readRDS(paste0("data/", id, ".rds"))
   
   hexo_df <- hexo %>%
     rename(time = time..s.256., 
@@ -69,8 +69,8 @@ hexoskin <- function(id, br_breaks = "1 min") {
   
   hexo_hr <- select(hexo, date_time, heart_rate) %>%
   #  mutate(date_time = force_tz(date_time, tzone = "MST")) %>%
-    mutate(date_time = force_tz(date_time, tzone = "UTC")) %>%
-    mutate(sec = as.integer(lubridate::second(date_time)))
+    mutate(date_time = force_tz(date_time, tzone = "UTC")) # %>%
+  #  mutate(sec = as.integer(lubridate::second(date_time)))
 
   hexo_breathing <- select(hexo, date_time, breathing_rate) %>% 
     group_by(date_time = cut(date_time, breaks = br_breaks)) %>%
@@ -145,7 +145,7 @@ heartrate_df <- function(id, br_breaks = "1 min", fb_hr_breaks = "1 min",
   }
   
   hexo <- hexo %>%
-    group_by(date_time = cut(date_time, breaks = h_hr_breaks)) %>%
+    group_by(date_time = cut(date_time, breaks = h_hr_breaks)) %>%  # h_hr_breaks
     summarize(heart_rate = mean(heart_rate, na.rm = TRUE)) %>%
     ungroup(date_time) %>%
     mutate(heart_rate = round(heart_rate, 0), 
@@ -486,7 +486,8 @@ stepcount_plot_average <- function(ids, filter = TRUE) {
   
 }
 
+# paired t tests - comparing the two devices 
+# 
 
-# want to have plots working 
-# ask janalee about shifts 
-# default plot when nothing is selected 
+
+
