@@ -1,4 +1,4 @@
-dir_files <- "~/Desktop/newnew"
+dir_files <- "~/Desktop/new"
 setwd(dir_files)
 
 files <- list.files()
@@ -11,22 +11,6 @@ for (i in 1:length(files)) {
   saveRDS(data, paste0(names[i], ".rds"))
   
 }
-
-
-fb <- grep('heartrate|Steps', list.files(), value = TRUE)
-file.remove(fb)
-
-hex <- list.files()
-hex_new <- paste0(substr(hex, 1, 4), "_hexoskin.rds")
-file.rename(hex, hex_new)
-
-
-rds <- list.files()
-ids <- unique(substr(rds, 1, 4))
-new_names <- paste0(ids, "_hexoskin.rds")
-
-hex_move <- grep('.rds', list.files(), value = TRUE)
-file.copy(hex_move, dir)
 
 
 move <- grep('.rds', list.files(), value = TRUE)
@@ -50,11 +34,4 @@ file.rename(step, step_new)
 
 
 setwd('~/Documents/gs/R/fitbit_hexoskin')
-
-
-setwd('~/Documents/gs/R/fitbit_hexoskin/data')
-hex_move <- grep("hexoskin", list.files(), value = TRUE)
-new_dir <- "~/Documents/gs/R/fitbit_hexoskin/old_hexoskin"
-file.copy(hex_move, new_dir)
-
 
