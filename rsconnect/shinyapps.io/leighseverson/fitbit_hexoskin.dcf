@@ -2,8 +2,8 @@ name: fitbit_hexoskin
 account: leighseverson
 server: shinyapps.io
 appId: 142660
-bundleId: 673330
+bundleId: 677452
 url: https://leighseverson.shinyapps.io/fitbit_hexoskin/
-when: 1483938315.39727
+when: 1484241756.42584
 asMultiple: FALSE
 asStatic: FALSE
