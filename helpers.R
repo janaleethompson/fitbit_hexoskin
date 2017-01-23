@@ -213,7 +213,8 @@ hr_plot <- function(id, br_breaks = "1 min", fb_hr_breaks = "1 min",
 
 hr_plot_mult <- function(ids, br_breaks = "1 min", fb_hr_breaks = "1 min",
                          h_hr_breaks = "1 min", filter = TRUE, 
-                         date_break = "30 min", fb = TRUE, h = TRUE) {
+                         date_break = "30 min", fb = TRUE, h = TRUE, 
+                         min = NULL, max = NULL) {
   
   if (length(ids == 1)) {
     id <- ids[1]
@@ -347,11 +348,34 @@ hr_plot_mult <- function(ids, br_breaks = "1 min", fb_hr_breaks = "1 min",
   
   to_plot <- heartrate_df(id, br_breaks, fb_hr_breaks, h_hr_breaks, filter)
   
+  if (!is.null(min) & !is.null(max)) {
+    
+    date <- format(to_plot$date_time[1], "%Y-%m-%d")
+
+    time_min <- substr(min, 1, nchar(min)-3)
+    ampm_min <- substr(min, nchar(min)-1, nchar(min))
+    
+    time_max <- substr(max, 1, nchar(max)-3)
+    ampm_max <- substr(max, nchar(max)-1, nchar(max))
+    
+    min_time <- lubridate::ymd_hms(paste0(date, " ", time_min, ":00", " ", 
+                                          ampm_min))
+    max_time <- lubridate::ymd_hms(paste0(date, " ", time_max, ":00", " ", 
+                                          ampm_max))
+    
+    to_plot <- filter(to_plot, date_time >= min_time & date_time <= max_time)
+    
+  }
+  
   to_plot_fb <- filter(to_plot, Device != "hexoskin")
   to_plot_hex <- filter(to_plot, Device != "fitbit")
   
   if (!is.na(id2)) {
     to_plot2 <- heartrate_df(id2, br_breaks, fb_hr_breaks, h_hr_breaks, filter)
+    
+    if (!is.null(min) & !is.null(max)) {
+      to_plot2 <- filter(to_plot2, date_time >= min_time & date_time <= max_time)
+    }
     
     to_plot_fb2 <- filter(to_plot2, Device != "hexoskin")
     to_plot_hex2 <- filter(to_plot2, Device != "fitbit")
@@ -359,6 +383,10 @@ hr_plot_mult <- function(ids, br_breaks = "1 min", fb_hr_breaks = "1 min",
   
   if (!is.na(id3)) {
     to_plot3 <- heartrate_df(id3, br_breaks, fb_hr_breaks, h_hr_breaks, filter)
+    
+    if (!is.null(min) & !is.null(max)) {
+      to_plot3 <- filter(to_plot3, date_time >= min_time & date_time <= max_time)
+    }
   
     to_plot_fb3 <- filter(to_plot3, Device != "hexoskin")
     to_plot_hex3 <- filter(to_plot3, Device != "fitbit")
@@ -367,12 +395,20 @@ hr_plot_mult <- function(ids, br_breaks = "1 min", fb_hr_breaks = "1 min",
   if (!is.na(id4)) {
     to_plot4 <- heartrate_df(id4, br_breaks, fb_hr_breaks, h_hr_breaks, filter)
     
+    if (!is.null(min) & !is.null(max)) {
+      to_plot4 <- filter(to_plot4, date_time >= min_time & date_time <= max_time)
+    }
+    
     to_plot_fb4 <- filter(to_plot4, Device != "hexoskin")
     to_plot_hex4 <- filter(to_plot4, Device != "fitbit")
   }
   
   if (!is.na(id5)) {
     to_plot5 <- heartrate_df(id5, br_breaks, fb_hr_breaks, h_hr_breaks, filter)
+    
+    if (!is.null(min) & !is.null(max)) {
+      to_plot5 <- filter(to_plot5, date_time >= min_time & date_time <= max_time)
+    }
     
     to_plot_fb5 <- filter(to_plot5, Device != "hexoskin")
     to_plot_hex5 <- filter(to_plot5, Device != "fitbit")
@@ -381,12 +417,20 @@ hr_plot_mult <- function(ids, br_breaks = "1 min", fb_hr_breaks = "1 min",
   if (!is.na(id6)) {
     to_plot6 <- heartrate_df(id6, br_breaks, fb_hr_breaks, h_hr_breaks, filter)
     
+    if (!is.null(min) & !is.null(max)) {
+      to_plot6 <- filter(to_plot6, date_time >= min_time & date_time <= max_time)
+    }
+    
     to_plot_fb6 <- filter(to_plot6, Device != "hexoskin")
     to_plot_hex6 <- filter(to_plot6, Device != "fitbit")
   }
   
   if (!is.na(id7)) {
     to_plot7 <- heartrate_df(id7, br_breaks, fb_hr_breaks, h_hr_breaks, filter)
+    
+    if (!is.null(min) & !is.null(max)) {
+      to_plot7 <- filter(to_plot7, date_time >= min_time & date_time <= max_time)
+    }
     
     to_plot_fb7 <- filter(to_plot7, Device != "hexoskin")
     to_plot_hex7 <- filter(to_plot7, Device != "fitbit")
@@ -395,6 +439,10 @@ hr_plot_mult <- function(ids, br_breaks = "1 min", fb_hr_breaks = "1 min",
   if (!is.na(id8)) {
     to_plot8 <- heartrate_df(id8, br_breaks, fb_hr_breaks, h_hr_breaks, filter)
     
+    if (!is.null(min) & !is.null(max)) {
+      to_plot8 <- filter(to_plot8, date_time >= min_time & date_time <= max_time)
+    }
+    
     to_plot_fb8 <- filter(to_plot8, Device != "hexoskin")
     to_plot_hex8 <- filter(to_plot8, Device != "fitbit")
   }
@@ -402,12 +450,20 @@ hr_plot_mult <- function(ids, br_breaks = "1 min", fb_hr_breaks = "1 min",
   if (!is.na(id9)) {
     to_plot9 <- heartrate_df(id9, br_breaks, fb_hr_breaks, h_hr_breaks, filter)
     
+    if (!is.null(min) & !is.null(max)) {
+      to_plot9 <- filter(to_plot9, date_time >= min_time & date_time <= max_time)
+    }
+    
     to_plot_fb9 <- filter(to_plot9, Device != "hexoskin")
     to_plot_hex9 <- filter(to_plot9, Device != "fitbit")
   }
   
   if (!is.na(id10)) {
     to_plot10 <- heartrate_df(id2, br_breaks, fb_hr_breaks, h_hr_breaks, filter)
+    
+    if (!is.null(min) & !is.null(max)) {
+      to_plot10 <- filter(to_plot10, date_time >= min_time & date_time <= max_time)
+    }
     
     to_plot_fb10 <- filter(to_plot10, Device != "hexoskin")
     to_plot_hex10 <- filter(to_plot10, Device != "fitbit")
@@ -662,7 +718,8 @@ br_plot <- function(id, br_breaks = "1 min", date_break = "30 min") {
 
 }
 
-br_plot_mult <- function(ids, br_breaks = "1 min", date_break = "30 min") {
+br_plot_mult <- function(ids, br_breaks = "1 min", date_break = "30 min", 
+                         min = NULL, max = NULL) {
   
   if (length(ids == 1)) {
     id <- ids[1]
@@ -796,6 +853,25 @@ br_plot_mult <- function(ids, br_breaks = "1 min", date_break = "30 min") {
   
   df <- hexoskin(id, br_breaks)$breathing 
   
+  if (!is.null(min) & !is.null(max)) {
+    
+    date <- format(df$date_time[1], "%Y-%m-%d")
+    
+    time_min <- substr(min, 1, nchar(min)-3)
+    ampm_min <- substr(min, nchar(min)-1, nchar(min))
+    
+    time_max <- substr(max, 1, nchar(max)-3)
+    ampm_max <- substr(max, nchar(max)-1, nchar(max))
+    
+    min_time <- lubridate::ymd_hms(paste0(date, " ", time_min, ":00", " ", 
+                                          ampm_min))
+    max_time <- lubridate::ymd_hms(paste0(date, " ", time_max, ":00", " ", 
+                                          ampm_max))
+    
+    df <- filter(df, date_time >= min_time & date_time <= max_time)
+    
+  }
+  
   plot <- ggplot(df, aes(x = date_time, y = breathing_rate)) + 
     geom_line(aes(color = eval(id))) + 
     theme_few() + 
@@ -810,12 +886,20 @@ br_plot_mult <- function(ids, br_breaks = "1 min", date_break = "30 min") {
   if (!is.na(id2)) {
     df2 <- hexoskin(id2, br_breaks)$breathing
     
+    if(!is.null(min) & !is.null(max)) {
+      df2 <- filter(df2, date_time >= min_time & date_time <= max_time)
+    }
+    
     plot <- plot + geom_line(data = df2, aes(color = eval(id2)))
     
   }
   
   if (!is.na(id3)) {
     df3 <- hexoskin(id3, br_breaks)$breathing
+    
+    if(!is.null(min) & !is.null(max)) {
+      df3 <- filter(df3, date_time >= min_time & date_time <= max_time)
+    }
     
     plot <- plot + geom_line(data = df3, aes(color = eval(id3)))
     
@@ -824,12 +908,20 @@ br_plot_mult <- function(ids, br_breaks = "1 min", date_break = "30 min") {
   if (!is.na(id4)) {
     df4 <- hexoskin(id4, br_breaks)$breathing
     
+    if(!is.null(min) & !is.null(max)) {
+      df4 <- filter(df4, date_time >= min_time & date_time <= max_time)
+    }
+    
     plot <- plot + geom_line(data = df4, aes(color = eval(id4)))
     
   }
   
   if (!is.na(id5)) {
     df5 <- hexoskin(id5, br_breaks)$breathing
+    
+    if(!is.null(min) & !is.null(max)) {
+      df5 <- filter(df5, date_time >= min_time & date_time <= max_time)
+    }
     
     plot <- plot + geom_line(data = df5, aes(color = eval(id5)))
     
@@ -838,12 +930,20 @@ br_plot_mult <- function(ids, br_breaks = "1 min", date_break = "30 min") {
   if (!is.na(id6)) {
     df6 <- hexoskin(id6, br_breaks)$breathing
     
+    if(!is.null(min) & !is.null(max)) {
+      df6 <- filter(df6, date_time >= min_time & date_time <= max_time)
+    }
+    
     plot <- plot + geom_line(data = df6, aes(color = eval(id6)))
     
   }
   
   if (!is.na(id7)) {
     df7 <- hexoskin(id7, br_breaks)$breathing
+    
+    if(!is.null(min) & !is.null(max)) {
+      df7 <- filter(df7, date_time >= min_time & date_time <= max_time)
+    }
     
     plot <- plot + geom_line(data = df7, aes(color = eval(id7)))
     
@@ -852,6 +952,10 @@ br_plot_mult <- function(ids, br_breaks = "1 min", date_break = "30 min") {
   if (!is.na(id8)) {
     df8 <- hexoskin(id8, br_breaks)$breathing
     
+    if(!is.null(min) & !is.null(max)) {
+      df8 <- filter(df8, date_time >= min_time & date_time <= max_time)
+    }
+    
     plot <- plot + geom_line(data = df8, aes(color = eval(id8)))
     
   }
@@ -859,12 +963,20 @@ br_plot_mult <- function(ids, br_breaks = "1 min", date_break = "30 min") {
   if (!is.na(id9)) {
     df9 <- hexoskin(id9, br_breaks)$breathing
     
+    if(!is.null(min) & !is.null(max)) {
+      df9 <- filter(df9, date_time >= min_time & date_time <= max_time)
+    }
+    
     plot <- plot + geom_line(data = df9, aes(color = eval(id9)))
     
   }
   
   if (!is.na(id10)) {
     df10 <- hexoskin(id10, br_breaks)$breathing
+    
+    if(!is.null(min) & !is.null(max)) {
+      df10 <- filter(df10, date_time >= min_time & date_time <= max_time)
+    }
     
     plot <- plot + geom_line(data = df10, aes(color = eval(id10)))
     

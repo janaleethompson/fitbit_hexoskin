@@ -1,5 +1,4 @@
 library(shiny)
-library(dygraphs)
 source("helpers.R")
 
 shinyServer(function(input, output) {
@@ -12,15 +11,25 @@ shinyServer(function(input, output) {
     input$hr_id
     
   })
-  
-  output$heartrate <- renderPlot({
 
-      hr_plot_mult(ids = id(), fb_hr_breaks = input$hr_avg, 
-                        h_hr_breaks = input$hr_avg, date_break = input$hr_date,
-                        fb = input$fb, h = input$hex)
-    
-  })
-  
+     output$heartrate <- renderPlot({
+       
+       if (input$min_hr != "" & input$max_hr != "") {
+         hr_plot_mult(ids = id(), fb_hr_breaks = input$hr_avg, 
+                      h_hr_breaks = input$hr_avg, date_break = input$hr_date,
+                      fb = input$fb, h = input$hex, min = input$min_hr, 
+                      max = input$max_hr)
+       } else {
+         hr_plot_mult(ids = id(), fb_hr_breaks = input$hr_avg, 
+                      h_hr_breaks = input$hr_avg, date_break = input$hr_date,
+                      fb = input$fb, h = input$hex, min = NULL, 
+                      max = NULL)
+       }
+       
+       
+   })
+
+ 
   id_br <- reactive({
     
     validate(
@@ -32,13 +41,29 @@ shinyServer(function(input, output) {
   
   output$breathing <- renderPlot({
     
-    br_plot_mult(ids = id_br(), br_breaks = input$br_avg, date_break = input$br_date)
+    if(input$min_br != "" & input$max_br != "") {
+      
+      br_plot_mult(ids = id_br(), br_breaks = input$br_avg, date_break = input$br_date, 
+                   min = input$min_br, max = input$max_br)
+    } else {
+      br_plot_mult(ids = id_br(), br_breaks = input$br_avg, date_break = input$br_date, 
+                   min = NULL, max = NULL)
+    }
     
+    
+    
+  })
+  
+  id_st <- reactive({
+    validate(
+      need(input$st_id != "", 'Choose an ID.')
+    )
+    input$st_id
   })
   
   output$steps <- renderPlot({
     
-    stepcount_plot(input$st_id)
+    stepcount_plot(id_st())
     
   })
   

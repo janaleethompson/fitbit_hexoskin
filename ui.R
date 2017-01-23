@@ -25,7 +25,20 @@ navbarPage(
              checkboxInput('fb', 'Fitbit', value = TRUE), 
              checkboxInput('hex', 'Hexoskin', value = TRUE))), 
       
-      plotOutput('heartrate')), 
+      plotOutput('heartrate'), 
+      
+      br(), 
+      br(), 
+      
+      column(2, textInput('min_hr', "Min time", "")), 
+      column(2, textInput('max_hr', "Max time", "")), 
+      
+      br(),
+      
+      p("Enter minimum and maximum times to zoom in the format hour:minute am/pm (e.g., 12:30 pm). 
+        If either field is blank, the plot will reset to its original 
+      range.")),
+      
     
     tabPanel('Breathing Rate', 
 
@@ -45,7 +58,18 @@ navbarPage(
                       
                       column(3, selectInput('br_avg', 'Aggregation', c('30 sec', '1 min', '5 min', '10 min')))), 
              
-             plotOutput('breathing')), 
+             plotOutput('breathing'), 
+             
+             br(), 
+             br(), 
+             
+             column(2, textInput('min_br', "Min time", "")), 
+             column(2, textInput('max_br', "Max time", "")), 
+             
+             br(), 
+             
+             p("Enter minimum and maximum times to zoom in the format hour:minute am/pm (e.g., 12:30 pm). 
+              If either field is blank, the plot will reset to its original range.")), 
     
       tabPanel('Steps', 
                
@@ -57,7 +81,7 @@ navbarPage(
                                                      "503n", "504n", "505n", "506n", "507n", "600n", "601n", "602n", "700n", "701n", "702n",
                                                      "703n", "704n", "705n", "706n", "707n", "708n", "709n", "710n", "800n", "900n", "901n",
                                                      "902n", "903n", "904n", "905n", "906n", "908n", "909n", "910n", "911n", "912n"), 
-                                                 multiple = FALSE, selected = "300n")),               
+                                                 multiple = FALSE, options = list(placeholder = 'select an ID'))),               
                
                plotOutput('steps')
                
