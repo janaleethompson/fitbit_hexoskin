@@ -345,22 +345,35 @@ hr_plot_mult <- function(ids, br_breaks = "1 min", fb_hr_breaks = "1 min",
     id9 <- ids[9]
     id10 <- ids[10]
   }
-  
+
   to_plot <- heartrate_df(id, br_breaks, fb_hr_breaks, h_hr_breaks, filter)
   
   if (!is.null(min) & !is.null(max)) {
     
-    date <- format(to_plot$date_time[1], "%Y-%m-%d")
-
+    late <- c('307n', '308n', '505n', '602n', '600n', '601n')
+    tail <- dim(to_plot)[1]
+    
+    date_min <- format(to_plot$date_time[1], "%Y-%m-%d")
+    date_max <- format(to_plot$date_time[1], "%Y-%m-%d")
+    
+    if(any(ids %in% late)) {
+      if(grep("am", min) == 1) {
+        date_min <- format(df$date_time[tail], "%Y-%m-%d")
+      }
+      if(grep("am", max) == 1) {
+        date_max <- format(df$date_time[tail], "%Y-%m-%d")
+      }
+    }
+    
     time_min <- substr(min, 1, nchar(min)-3)
     ampm_min <- substr(min, nchar(min)-1, nchar(min))
     
     time_max <- substr(max, 1, nchar(max)-3)
     ampm_max <- substr(max, nchar(max)-1, nchar(max))
     
-    min_time <- lubridate::ymd_hms(paste0(date, " ", time_min, ":00", " ", 
+    min_time <- lubridate::ymd_hms(paste0(date_min, " ", time_min, ":00", " ", 
                                           ampm_min))
-    max_time <- lubridate::ymd_hms(paste0(date, " ", time_max, ":00", " ", 
+    max_time <- lubridate::ymd_hms(paste0(date_max, " ", time_max, ":00", " ", 
                                           ampm_max))
     
     to_plot <- filter(to_plot, date_time >= min_time & date_time <= max_time)
@@ -855,7 +868,20 @@ br_plot_mult <- function(ids, br_breaks = "1 min", date_break = "30 min",
   
   if (!is.null(min) & !is.null(max)) {
     
-    date <- format(df$date_time[1], "%Y-%m-%d")
+    late <- c('307n', '308n', '505n', '602n', '600n', '601n')
+    tail <- dim(df)[1]
+    
+    date_min <- format(df$date_time[1], "%Y-%m-%d")
+    date_max <- format(df$date_time[1], "%Y-%m-%d")
+    
+    if(any(ids %in% late)) {
+      if(grep("am", min) == 1) {
+        date_min <- format(df$date_time[tail], "%Y-%m-%d")
+      }
+      if(grep("am", max) == 1) {
+        date_max <- format(df$date_time[tail], "%Y-%m-%d")
+      }
+    }
     
     time_min <- substr(min, 1, nchar(min)-3)
     ampm_min <- substr(min, nchar(min)-1, nchar(min))
@@ -863,9 +889,9 @@ br_plot_mult <- function(ids, br_breaks = "1 min", date_break = "30 min",
     time_max <- substr(max, 1, nchar(max)-3)
     ampm_max <- substr(max, nchar(max)-1, nchar(max))
     
-    min_time <- lubridate::ymd_hms(paste0(date, " ", time_min, ":00", " ", 
+    min_time <- lubridate::ymd_hms(paste0(date_min, " ", time_min, ":00", " ", 
                                           ampm_min))
-    max_time <- lubridate::ymd_hms(paste0(date, " ", time_max, ":00", " ", 
+    max_time <- lubridate::ymd_hms(paste0(date_max, " ", time_max, ":00", " ", 
                                           ampm_max))
     
     df <- filter(df, date_time >= min_time & date_time <= max_time)
