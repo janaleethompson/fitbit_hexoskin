@@ -4,11 +4,21 @@ source("helpers.R")
 
 shinyServer(function(input, output) {
   
-  output$heartrate <- renderPlot({
+  id <- reactive({
     
-    hr_plot(input$hr_id, fb_hr_breaks = input$hr_avg, h_hr_breaks = input$hr_avg, 
-                date_break = input$hr_date, fb = input$fb, h = input$hex)
+    validate(
+      need(input$hr_id != "", 'Choose at least one ID.')
+      )
+    input$hr_id
+    
+  })
+  
+  output$heartrate <- renderPlot({
 
+      hr_plot_mult(ids = id(), fb_hr_breaks = input$hr_avg, 
+                        h_hr_breaks = input$hr_avg, date_break = input$hr_date,
+                        fb = input$fb, h = input$hex)
+    
   })
   
   output$breathing <- renderPlot({

@@ -15,7 +15,7 @@ navbarPage(
             "503n", "504n", "505n", "506n", "507n", "600n", "601n", "602n", "700n", "701n", "702n",
             "703n", "704n", "705n", "706n", "707n", "708n", "709n", "710n", "800n", "900n", "901n",
             "902n", "903n", "904n", "905n", "906n", "908n", "909n", "910n", "911n", "912n"), 
-            multiple = FALSE, selected = "200n")),
+            multiple = TRUE, options = list(maxItems = 10, placeholder = 'select one or multiple IDs'))),
             
       column(3, selectInput('hr_date', 'Date Breaks', c('30 min', '60 min', '2 hours'))), 
       
