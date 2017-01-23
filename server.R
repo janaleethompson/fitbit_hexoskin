@@ -6,7 +6,7 @@ shinyServer(function(input, output) {
   id <- reactive({
     
     validate(
-      need(input$hr_id != "", 'Choose at least one ID.')
+      need(input$hr_id != "", 'Choose at least one ID, or multiple IDs from the same shift.')
       )
     input$hr_id
     
@@ -33,7 +33,7 @@ shinyServer(function(input, output) {
   id_br <- reactive({
     
     validate(
-      need(input$br_id != "", 'Choose at least one ID.')
+      need(input$br_id != "", 'Choose at least one ID, or multiple IDs from the same shift.')
     )
     input$br_id
     
