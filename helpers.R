@@ -214,7 +214,7 @@ hr_plot <- function(id, br_breaks = "1 min", fb_hr_breaks = "1 min",
 hr_plot_mult <- function(ids, br_breaks = "1 min", fb_hr_breaks = "1 min",
                          h_hr_breaks = "1 min", filter = TRUE, 
                          date_break = "30 min", fb = TRUE, h = TRUE, 
-                         min = NULL, max = NULL) {
+                         min = NULL, max = NULL, alpha = 1) {
   
   if (length(ids == 1)) {
     id <- ids[1]
@@ -485,8 +485,8 @@ hr_plot_mult <- function(ids, br_breaks = "1 min", fb_hr_breaks = "1 min",
   if (fb == FALSE) {
 
     plot <- ggplot(to_plot_hex, aes(x = date_time, y = heartrate)) + 
-     # geom_line(data = to_plot_fb, alpha = 0.75, aes(color = "A")) + 
-      geom_line(alpha = 0.75, aes(color = paste0(eval(id), "_hex"))) +
+     # geom_line(data = to_plot_fb, alpha = alpha, aes(color = "A")) + 
+      geom_line(alpha = alpha, aes(color = paste0(eval(id), "_hex"))) +
       scale_x_datetime(name = NULL, breaks = scales::date_breaks(date_break), 
                        date_labels = "%I:%M %p") +
       theme_few() + 
@@ -498,63 +498,63 @@ hr_plot_mult <- function(ids, br_breaks = "1 min", fb_hr_breaks = "1 min",
     
     if (!is.na(id2)) {
       
-     plot <- plot + geom_line(data = to_plot_hex2,alpha = 0.75, 
+     plot <- plot + geom_line(data = to_plot_hex2,alpha = alpha, 
                               aes(color = paste0(eval(id2), "_hex")))
      
     }
     
     if (!is.na(id3)) {
       
-      plot <- plot + geom_line(data = to_plot_hex3,alpha = 0.75, 
+      plot <- plot + geom_line(data = to_plot_hex3,alpha = alpha, 
                                aes(color = paste0(eval(id3), "_hex")))
       
     }
     
     if (!is.na(id4)) {
       
-      plot <- plot + geom_line(data = to_plot_hex4,alpha = 0.75, 
+      plot <- plot + geom_line(data = to_plot_hex4,alpha = alpha, 
                                aes(color = paste0(eval(id4), "_hex")))
       
     }
     
     if (!is.na(id5)) {
       
-      plot <- plot + geom_line(data = to_plot_hex5,alpha = 0.75, 
+      plot <- plot + geom_line(data = to_plot_hex5,alpha = alpha, 
                                aes(color = paste0(eval(id5), "_hex")))
       
     }
     
     if (!is.na(id6)) {
       
-      plot <- plot + geom_line(data = to_plot_hex6,alpha = 0.75, 
+      plot <- plot + geom_line(data = to_plot_hex6,alpha = alpha, 
                                aes(color = paste0(eval(id6), "_hex")))
       
     }
     
     if (!is.na(id7)) {
       
-      plot <- plot + geom_line(data = to_plot_hex7,alpha = 0.75, 
+      plot <- plot + geom_line(data = to_plot_hex7,alpha = alpha, 
                                aes(color = paste0(eval(id7), "_hex")))
       
     }
     
     if (!is.na(id8)) {
       
-      plot <- plot + geom_line(data = to_plot_hex8,alpha = 0.75, 
+      plot <- plot + geom_line(data = to_plot_hex8,alpha = alpha, 
                                aes(color = paste0(eval(id8), "_hex")))
       
     }
     
     if (!is.na(id9)) {
       
-      plot <- plot + geom_line(data = to_plot_hex9,alpha = 0.75, 
+      plot <- plot + geom_line(data = to_plot_hex9,alpha = alpha, 
                                aes(color = paste0(eval(id9), "_hex")))
       
     }
     
     if (!is.na(id10)) {
       
-      plot <- plot + geom_line(data = to_plot_hex10,alpha = 0.75, 
+      plot <- plot + geom_line(data = to_plot_hex10,alpha = alpha, 
                                aes(color = paste0(eval(id10), "_hex")))
       
     }
@@ -564,8 +564,8 @@ hr_plot_mult <- function(ids, br_breaks = "1 min", fb_hr_breaks = "1 min",
   else if (h == FALSE) {
 
     plot <- ggplot(to_plot_fb, aes(x = date_time, y = heartrate)) + 
-      geom_line(alpha = 0.75, aes(color = paste0(eval(id), "_fb"))) + 
-   #   geom_line(data = to_plot_hex, alpha = 0.75, aes(color = "B")) +
+      geom_line(alpha = alpha, aes(color = paste0(eval(id), "_fb"))) + 
+   #   geom_line(data = to_plot_hex, alpha = alpha, aes(color = "B")) +
       scale_x_datetime(name = NULL, breaks = scales::date_breaks(date_break), 
                        date_labels = "%I:%M %p") +
       theme_few() + 
@@ -576,47 +576,47 @@ hr_plot_mult <- function(ids, br_breaks = "1 min", fb_hr_breaks = "1 min",
                                            "#d9d9d9")) 
     
     if (!is.na(id2)) {
-      plot <- plot + geom_line(data = to_plot_fb2, alpha = 0.75, 
+      plot <- plot + geom_line(data = to_plot_fb2, alpha = alpha, 
                                aes(color = paste0(eval(id2), "_fb")))
     }
     
     if (!is.na(id3)) {
-      plot <- plot + geom_line(data = to_plot_fb3, alpha = 0.75, 
+      plot <- plot + geom_line(data = to_plot_fb3, alpha = alpha, 
                                aes(color = paste0(eval(id3), "_fb")))
     }
     
     if (!is.na(id4)) {
-      plot <- plot + geom_line(data = to_plot_fb4, alpha = 0.75, 
+      plot <- plot + geom_line(data = to_plot_fb4, alpha = alpha, 
                                aes(color = paste0(eval(id4), "_fb")))
     }
     
     if (!is.na(id5)) {
-      plot <- plot + geom_line(data = to_plot_fb5, alpha = 0.75, 
+      plot <- plot + geom_line(data = to_plot_fb5, alpha = alpha, 
                                aes(color = paste0(eval(id5), "_fb")))
     }
     
     if (!is.na(id6)) {
-      plot <- plot + geom_line(data = to_plot_fb6, alpha = 0.75, 
+      plot <- plot + geom_line(data = to_plot_fb6, alpha = alpha, 
                                aes(color = paste0(eval(id6), "_fb")))
     }
     
     if (!is.na(id7)) {
-      plot <- plot + geom_line(data = to_plot_fb7, alpha = 0.75, 
+      plot <- plot + geom_line(data = to_plot_fb7, alpha = alpha, 
                                aes(color = paste0(eval(id7), "_fb")))
     }
     
     if (!is.na(id8)) {
-      plot <- plot + geom_line(data = to_plot_fb8, alpha = 0.75, 
+      plot <- plot + geom_line(data = to_plot_fb8, alpha = alpha, 
                                aes(color = paste0(eval(id8), "_fb")))
     }
     
     if (!is.na(id9)) {
-      plot <- plot + geom_line(data = to_plot_fb9, alpha = 0.75, 
+      plot <- plot + geom_line(data = to_plot_fb9, alpha = alpha, 
                                aes(color = paste0(eval(id9), "_fb")))
     }
     
     if (!is.na(id10)) {
-      plot <- plot + geom_line(data = to_plot_fb10, alpha = 0.75, 
+      plot <- plot + geom_line(data = to_plot_fb10, alpha = alpha, 
                                aes(color = paste0(eval(id10), "_fb")))
     }
     
@@ -625,8 +625,8 @@ hr_plot_mult <- function(ids, br_breaks = "1 min", fb_hr_breaks = "1 min",
    else {
     
     plot <- ggplot(to_plot, aes(x = date_time, y = heartrate)) + 
-      geom_line(data = to_plot_fb, alpha = 0.75, aes(color = paste0(eval(id), "_fb"))) + 
-      geom_line(data = to_plot_hex, alpha = 0.75, aes(color = paste0(eval(id), "_hex"))) +
+      geom_line(data = to_plot_fb, alpha = alpha, aes(color = paste0(eval(id), "_fb"))) + 
+      geom_line(data = to_plot_hex, alpha = alpha, aes(color = paste0(eval(id), "_hex"))) +
       scale_x_datetime(name = NULL, breaks = scales::date_breaks(date_break), 
                        date_labels = "%I:%M %p") +
       theme_few() + 
@@ -641,65 +641,65 @@ hr_plot_mult <- function(ids, br_breaks = "1 min", fb_hr_breaks = "1 min",
     
     if(!is.na(id2)) {
       
-      plot <- plot + geom_line(data = to_plot_fb2, alpha = 0.75, 
+      plot <- plot + geom_line(data = to_plot_fb2, alpha = alpha, 
                                aes(color = paste0(eval(id2), "_fb"))) + 
-        geom_line(data = to_plot_hex2, alpha = 0.75, aes(color = paste0(eval(id2), "_hex")))
+        geom_line(data = to_plot_hex2, alpha = alpha, aes(color = paste0(eval(id2), "_hex")))
     }
     
     if(!is.na(id3)) {
       
-      plot <- plot + geom_line(data = to_plot_fb3, alpha = 0.75, 
+      plot <- plot + geom_line(data = to_plot_fb3, alpha = alpha, 
                                aes(color = paste0(eval(id3), "_fb"))) + 
-        geom_line(data = to_plot_hex3, alpha = 0.75, aes(color = paste0(eval(id3), "_hex")))
+        geom_line(data = to_plot_hex3, alpha = alpha, aes(color = paste0(eval(id3), "_hex")))
     }
     
     if(!is.na(id4)) {
       
-      plot <- plot + geom_line(data = to_plot_fb4, alpha = 0.75, 
+      plot <- plot + geom_line(data = to_plot_fb4, alpha = alpha, 
                                aes(color = paste0(eval(id4), "_fb"))) + 
-        geom_line(data = to_plot_hex4, alpha = 0.75, aes(color = paste0(eval(id4), "_hex")))
+        geom_line(data = to_plot_hex4, alpha = alpha, aes(color = paste0(eval(id4), "_hex")))
     }
     
     if(!is.na(id5)) {
       
-      plot <- plot + geom_line(data = to_plot_fb5, alpha = 0.75, 
+      plot <- plot + geom_line(data = to_plot_fb5, alpha = alpha, 
                                aes(color = paste0(eval(id5), "_fb"))) + 
-        geom_line(data = to_plot_hex5, alpha = 0.75, aes(color = paste0(eval(id5), "_hex")))
+        geom_line(data = to_plot_hex5, alpha = alpha, aes(color = paste0(eval(id5), "_hex")))
     }
     
     if(!is.na(id6)) {
       
-      plot <- plot + geom_line(data = to_plot_fb6, alpha = 0.75, 
+      plot <- plot + geom_line(data = to_plot_fb6, alpha = alpha, 
                                aes(color = paste0(eval(id6), "_fb"))) + 
-        geom_line(data = to_plot_hex6, alpha = 0.75, aes(color = paste0(eval(id6), "_hex")))
+        geom_line(data = to_plot_hex6, alpha = alpha, aes(color = paste0(eval(id6), "_hex")))
     }
     
     if(!is.na(id7)) {
       
-      plot <- plot + geom_line(data = to_plot_fb7, alpha = 0.75, 
+      plot <- plot + geom_line(data = to_plot_fb7, alpha = alpha, 
                                aes(color = paste0(eval(id7), "_fb"))) + 
-        geom_line(data = to_plot_hex7, alpha = 0.75, aes(color = paste0(eval(id7), "_hex")))
+        geom_line(data = to_plot_hex7, alpha = alpha, aes(color = paste0(eval(id7), "_hex")))
     }
     
     if(!is.na(id8)) {
       
-      plot <- plot + geom_line(data = to_plot_fb8, alpha = 0.75, 
+      plot <- plot + geom_line(data = to_plot_fb8, alpha = alpha, 
                                aes(color = paste0(eval(id8), "_fb"))) + 
-        geom_line(data = to_plot_hex8, alpha = 0.75, aes(color = paste0(eval(id8), "_hex")))
+        geom_line(data = to_plot_hex8, alpha = alpha, aes(color = paste0(eval(id8), "_hex")))
     }
     
     if(!is.na(id9)) {
       
-      plot <- plot + geom_line(data = to_plot_fb9, alpha = 0.75, 
+      plot <- plot + geom_line(data = to_plot_fb9, alpha = alpha, 
                                aes(color = paste0(eval(id9), "_fb"))) + 
-        geom_line(data = to_plot_hex9, alpha = 0.75, aes(color = paste0(eval(id9), "_hex")))
+        geom_line(data = to_plot_hex9, alpha = alpha, aes(color = paste0(eval(id9), "_hex")))
     }
     
     if(!is.na(id10)) {
       
-      plot <- plot + geom_line(data = to_plot_fb10, alpha = 0.75, 
+      plot <- plot + geom_line(data = to_plot_fb10, alpha = alpha, 
                                aes(color = paste0(eval(id10), "_fb"))) + 
-        geom_line(data = to_plot_hex10, alpha = 0.75, aes(color = paste0(eval(id10), "_hex")))
+        geom_line(data = to_plot_hex10, alpha = alpha, aes(color = paste0(eval(id10), "_hex")))
     }
     
   }
@@ -732,7 +732,7 @@ br_plot <- function(id, br_breaks = "1 min", date_break = "30 min") {
 }
 
 br_plot_mult <- function(ids, br_breaks = "1 min", date_break = "30 min", 
-                         min = NULL, max = NULL) {
+                         min = NULL, max = NULL, alpha = 1) {
   
   if (length(ids == 1)) {
     id <- ids[1]
@@ -1130,7 +1130,7 @@ hr_plot_avg <- function(ids, br_breaks = "1 min", fb_hr_breaks = "1 min",
       to_plot <- filter(to_plot, Device != "fitbit")
       
       plot <- ggplot(to_plot, aes(x = date_time, y = average_heartrate, color = Device)) + 
-        geom_line(alpha = 0.75) + 
+        geom_line(alpha = alpha) + 
         scale_x_datetime(name = NULL, breaks = scales::date_breaks(date_break), 
                          date_labels = "%I:%M %p") +
         theme_few() + 
@@ -1142,7 +1142,7 @@ hr_plot_avg <- function(ids, br_breaks = "1 min", fb_hr_breaks = "1 min",
       to_plot <- filter(to_plot, Device != "hexoskin")
       
       plot <- ggplot(to_plot, aes(x = date_time, y = average_heartrate, color = Device)) + 
-        geom_line(alpha = 0.75) + 
+        geom_line(alpha = alpha) + 
         scale_x_datetime(name = NULL, breaks = scales::date_breaks(date_break), 
                          date_labels = "%I:%M %p") +
         theme_few() + 
@@ -1153,7 +1153,7 @@ hr_plot_avg <- function(ids, br_breaks = "1 min", fb_hr_breaks = "1 min",
     else {
       
       plot <- ggplot(to_plot, aes(x = date_time, y = average_heartrate, color = Device)) + 
-        geom_line(alpha = 0.75) + 
+        geom_line(alpha = alpha) + 
         scale_x_datetime(name = NULL, breaks = scales::date_breaks(date_break), 
                          date_labels = "%I:%M %p") +
         theme_few() + 
