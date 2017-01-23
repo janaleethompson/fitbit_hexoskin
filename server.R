@@ -55,10 +55,11 @@ shinyServer(function(input, output) {
   })
   
   id_st <- reactive({
+    
     validate(
-      need(input$st_id != "", 'Choose an ID.')
+      need(input$steps_id != "", '')
     )
-    input$st_id
+    input$steps_id
   })
   
   output$steps <- renderPlot({
