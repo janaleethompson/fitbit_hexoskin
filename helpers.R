@@ -662,9 +662,137 @@ br_plot <- function(id, br_breaks = "1 min", date_break = "30 min") {
 
 }
 
-br_plot_mult <- function(id, id2 = NULL, id3 = NULL, id4 = NULL, id5 = NULL, 
-                         id6 = NULL, id7 = NULL, id8 = NULL, id9 = NULL, id10 = NULL,
-                         br_breaks = "1 min", date_break = "30 min") {
+br_plot_mult <- function(ids, br_breaks = "1 min", date_break = "30 min") {
+  
+  if (length(ids == 1)) {
+    id <- ids[1]
+    id2 <- NULL
+    id3 <- NULL
+    id4 <- NULL
+    id5 <- NULL
+    id6 <- NULL
+    id7 <- NULL
+    id8 <- NULL
+    id9 <- NULL
+    id10 <- NULL
+  }
+  
+  if (length(ids == 2)) {
+    id <- ids[1]
+    id2 <- ids[2]
+    id3 <- NULL
+    id4 <- NULL
+    id5 <- NULL
+    id6 <- NULL
+    id7 <- NULL
+    id8 <- NULL
+    id9 <- NULL
+    id10 <- NULL
+  }
+  
+  if (length(ids == 3)) {
+    id <- ids[1]
+    id2 <- ids[2]
+    id3 <- ids[3]
+    id4 <- NULL
+    id5 <- NULL
+    id6 <- NULL
+    id7 <- NULL
+    id8 <- NULL
+    id9 <- NULL
+    id10 <- NULL
+  }
+  
+  if (length(ids == 4)) {
+    id <- ids[1]
+    id2 <- ids[2]
+    id3 <- ids[3]
+    id4 <- ids[4]
+    id5 <- NULL
+    id6 <- NULL
+    id7 <- NULL
+    id8 <- NULL
+    id9 <- NULL
+    id10 <- NULL
+  }
+  
+  if (length(ids == 5)) {
+    id <- ids[1]
+    id2 <- ids[2]
+    id3 <- ids[3]
+    id4 <- ids[4]
+    id5 <- ids[5]
+    id6 <- NULL
+    id7 <- NULL
+    id8 <- NULL
+    id9 <- NULL
+    id10 <- NULL
+  }
+  
+  if (length(ids == 6)) {
+    id <- ids[1]
+    id2 <- ids[2]
+    id3 <- ids[3]
+    id4 <- ids[4]
+    id5 <- ids[5]
+    id6 <- ids[6]
+    id7 <- NULL
+    id8 <- NULL
+    id9 <- NULL
+    id10 <- NULL
+  }
+  
+  if (length(ids == 7)) {
+    id <- ids[1]
+    id2 <- ids[2]
+    id3 <- ids[3]
+    id4 <- ids[4]
+    id5 <- ids[5]
+    id6 <- ids[6]
+    id7 <- ids[7]
+    id8 <- NULL
+    id9 <- NULL
+    id10 <- NULL
+  }
+  
+  if (length(ids == 8)) {
+    id <- ids[1]
+    id2 <- ids[2]
+    id3 <- ids[3]
+    id4 <- ids[4]
+    id5 <- ids[5]
+    id6 <- ids[6]
+    id7 <- ids[7]
+    id8 <- ids[8]
+    id9 <- NULL
+    id10 <- NULL
+  }
+  
+  if (length(ids == 9)) {
+    id <- ids[1]
+    id2 <- ids[2]
+    id3 <- ids[3]
+    id4 <- ids[4]
+    id5 <- ids[5]
+    id6 <- ids[6]
+    id7 <- ids[7]
+    id8 <- ids[8]
+    id9 <- ids[9]
+    id10 <- NULL
+  }
+  
+  if (length(ids == 10)) {
+    id <- ids[1]
+    id2 <- ids[2]
+    id3 <- ids[3]
+    id4 <- ids[4]
+    id5 <- ids[5]
+    id6 <- ids[6]
+    id7 <- ids[7]
+    id8 <- ids[8]
+    id9 <- ids[9]
+    id10 <- ids[10]
+  }
   
   df <- hexoskin(id, br_breaks)$breathing 
   

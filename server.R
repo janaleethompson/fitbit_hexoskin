@@ -21,9 +21,18 @@ shinyServer(function(input, output) {
     
   })
   
+  id_br <- reactive({
+    
+    validate(
+      need(input$br_id != "", 'Choose at least one ID.')
+    )
+    input$br_id
+    
+  })
+  
   output$breathing <- renderPlot({
     
-    br_plot(input$br_id, br_breaks = input$br_avg, date_break = input$br_date)
+    br_plot_mult(ids = id_br(), br_breaks = input$br_avg, date_break = input$br_date)
     
   })
   

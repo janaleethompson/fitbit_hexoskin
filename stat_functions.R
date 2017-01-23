@@ -8,20 +8,22 @@ perc_max <- function(avg, rest, pred) {
 
 }
 
+# average should be calculated from data 
+
 # basal metabolic rate
 # men: 10*(weight(kg)) + 6.25*(height(cm)) - 5*(age(years)) + 5
 # women: 10*(weight(kg)) + 6.25*(height(cm)) - 5*(age(years)) - 161
 
 basal_men <- function(weight, height, years) {
   
-  rate <- 10*10*(weight(kg)) + 6.25*(height(cm)) - 5*(age(years)) + 5
+  rate <- 10*10*(weight*kg) + 6.25*(height*cm) - 5*(age*years) + 5
   return(rate)
   
 }
 
 basal_women <- funtion(weight, height, years) {
   
-  rate <- 10*(weight(kg)) + 6.25*(height(cm)) - 5*(age(years)) - 161
+  rate <- 10*(weight*kg) + 6.25*(height*cm) - 5*(age*years) - 161
   return(rate)
   
 }
@@ -44,6 +46,7 @@ stepcount_ttest <- function(id) {
 
 
 # mean percent heart rate increase: two sample t-test
+# maybe 
 
 
 
