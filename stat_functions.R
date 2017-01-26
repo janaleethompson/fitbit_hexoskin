@@ -8,14 +8,14 @@ resting <- function(id) {
   df <- heartrate_df(id, fb_hr_breaks = "1 sec", h_hr_breaks = "1 sec", 
                      filter = FALSE)
   
-  h <- filter(df, Device == "hexoskin")
-  fb <- filter(df, Device == "fitbit")
+#  h <- filter(df, Device == "hexoskin")
+#  fb <- filter(df, Device == "fitbit")
   
   df_h <- filter(df, Device == "hexoskin" & !is.na(heartrate))
-  df_fb <- filter(df, Device == "fitbit" & !is.na(heartrate))
+#  df_fb <- filter(df, Device == "fitbit" & !is.na(heartrate))
   
-  perc_missing_h <- (nrow(h) - nrow(df_h)) / nrow(h)
-  perc_missing_fb <- (nrow(fb) - nrow(df_fb)) / nrow(fb)
+#  perc_missing_h <- (nrow(h) - nrow(df_h)) / nrow(h)
+#  perc_missing_fb <- (nrow(fb) - nrow(df_fb)) / nrow(fb)
   
   for (i in 1:nrow(df_h)) {
     min_h <- df_h[i:60, 3]
@@ -30,22 +30,20 @@ resting <- function(id) {
   
   rest_h <- min(out_h)
   
-  for (i in 1:nrow(df_fb)) {
-    min_fb <- df_fb[i:60, 3]
-    avg_fb <- mean(min_fb$heartrate)
-    
-    if (i == 1) {
-      out_fb <- avg_fb
-    } else {
-      out_fb <- c(out_fb, avg_fb)
-    }
-  }
+  # for (i in 1:nrow(df_fb)) {
+  #   min_fb <- df_fb[i:60, 3]
+  #   avg_fb <- mean(min_fb$heartrate)
+  #   
+  #   if (i == 1) {
+  #     out_fb <- avg_fb
+  #   } else {
+  #     out_fb <- c(out_fb, avg_fb)
+  #   }
+  # }
   
-  rest_fb <- min(out_fb)
+#  rest_fb <- min(out_fb)
   
-  out_df <- data.frame(ID = c(id, id), Device = c("hexoskin", "fitbit"), 
-                       resting_hr = c(rest_h, rest_fb), 
-                       perc_missing = c(perc_missing_h, perc_missing_fb))
+  out_df <- data.frame(ID = id, resting_hr = rest_h)
   
   return(out_df)
   
@@ -75,7 +73,11 @@ for (i in 1:length(ids)) {
   
 }
 
+#saveRDS(out, "data/resting_hr.rds")
+rest <- readRDS("data/resting_hr.rds")
+
 # probably better to rely on hexoskin ? 
+# missing data for 202n (missing fitbit hr data) and 210n (missing hexoskin data) 
 
 perc_max <- function(avg, rest, pred) {
   

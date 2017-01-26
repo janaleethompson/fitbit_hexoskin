@@ -145,7 +145,7 @@ heartrate_df <- function(id, br_breaks = "1 min", fb_hr_breaks = "1 min",
   }
   
   hexo <- hexo %>%
-    group_by(date_time = cut(date_time, breaks = h_hr_breaks)) %>%  # h_hr_breaks
+    group_by(date_time = cut(date_time, breaks = h_hr_breaks)) %>%  
     summarize(heart_rate = mean(heart_rate, na.rm = TRUE)) %>%
     ungroup(date_time) %>%
     mutate(heart_rate = round(heart_rate, 0), 
