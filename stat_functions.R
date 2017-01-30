@@ -79,12 +79,16 @@ rest <- readRDS("data/resting_hr.rds")
 # probably better to rely on hexoskin ? 
 # missing data for 202n (missing fitbit hr data) and 210n (missing hexoskin data) 
 
+# need to add 202n 
+
+
 perc_max <- function(avg, rest, pred) {
   
   perc <- 100*((avg - rest) / (pred - rest))
   return(perc)
 
 }
+
 
 # average should be calculated from data 
 
