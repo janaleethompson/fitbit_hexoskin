@@ -444,10 +444,20 @@ hr_plot_mult <- function(ids, br_breaks = "1 min", fb_hr_breaks = "1 min",
                        date_labels = "%I:%M %p") +
       theme_few() + 
       ylab("Heart Rate") +
-      scale_color_manual("IDs", values = c("#1f78b4", "#33a02c", "#e31a1c", 
-                                           "#ff7f00", "#6a3d9a", "#ffffb3", 
-                                           "#fb8072", "#fdb462", "#fccde5", 
-                                           "#bc80bd"))  
+      scale_color_manual("IDs", values =     c("#66c2a5",# "#fc8d62",  # teal/orange
+                                               "#8da0cb",# "#e78ac3",  # purple/pink
+                                               "#a6d854",# "#ffd92f",  # lime green/yellow
+                                               "#e5c494",# "#b3b3b3",  # tan/grey
+                                               "#fb8072",# "#80b1d3",  # red/blue
+                                               "#bc80bd",# "#8dd3c7",  # purple/teal ish
+                                               "#7fc97f",# "#beaed4",  # green/purple 
+                                               "#fdb462",# "#fb8072",  # orange/red
+                                               "#cab2d6",# "#fdbf6f",  # light purple/light orange
+                                               "#a6cee3",# "#b2df8a",  # light blue/light green
+                                               "#fb9a99",# "#fdbf6f",  # light red/light orange
+                                               "#d9d9d9",# "#80b1d3",  # grey/blue
+                                               "#ccebc5"# "#bc80bd"  # mint/purple 
+      ))
     
     if (!is.na(id2)) {
       
@@ -523,10 +533,20 @@ hr_plot_mult <- function(ids, br_breaks = "1 min", fb_hr_breaks = "1 min",
                        date_labels = "%I:%M %p") +
       theme_few() + 
       ylab("Heart Rate") +
-      scale_color_manual("IDs", values = c("#a6cee3", "#b2df8a", "#fb9a99", 
-                                           "#fdbf6f", "#cab2d6", "#8dd3c7", 
-                                           "#bebada", "#80b1d3", "#b3de69", 
-                                           "#d9d9d9")) 
+      scale_color_manual("IDs", values =     c("#fc8d62",  # teal/orange
+                                               "#e78ac3",  # purple/pink
+                                               "#ffd92f",  # lime green/yellow
+                                               "#b3b3b3",  # tan/grey
+                                               "#80b1d3",  # red/blue
+                                               "#8dd3c7",  # purple/teal ish
+                                               "#beaed4",  # green/purple 
+                                               "#fb8072",  # orange/red
+                                               "#fdbf6f",  # light purple/light orange
+                                               "#b2df8a",  # light blue/light green
+                                               "#fdbf6f",  # light red/light orange
+                                               "#80b1d3",  # grey/blue
+                                               "#bc80bd"  # mint/purple 
+      ))
     
     if (!is.na(id2)) {
       plot <- plot + geom_line(data = to_plot_fb2, alpha = alpha, 
@@ -584,13 +604,22 @@ hr_plot_mult <- function(ids, br_breaks = "1 min", fb_hr_breaks = "1 min",
                        date_labels = "%I:%M %p") +
       theme_few() + 
       ylab("Heart Rate") +
-      scale_color_manual("IDs", values = c("#a6cee3", "#1f78b4", "#b2df8a", 
-                                           "#33a02c", "#fb9a99", "#e31a1c", 
-                                           "#fdbf6f", "#ff7f00", "#cab2d6", 
-                                           "#6a3d9a", "#8dd3c7", "#ffffb3", 
-                                           "#bebada", "#fb8072", "#80b1d3", 
-                                           "#fdb462", "#b3de69", "#fccde5", 
-                                           "#d9d9d9", "#bc80bd")) 
+      scale_color_manual("IDs", values =     c("#66c2a5", "#fc8d62",  # teal/orange
+                                               "#8da0cb", "#e78ac3",  # purple/pink
+                                               "#a6d854", "#ffd92f",  # lime green/yellow
+                                               "#e5c494", "#b3b3b3",  # tan/grey
+                                               "#fb8072", "#80b1d3",  # red/blue
+                                               "#bc80bd", "#8dd3c7",  # purple/teal ish
+                                               "#7fc97f", "#beaed4",  # green/purple 
+                                               "#fdb462", "#fb8072",  # orange/red
+                                               "#cab2d6", "#fdbf6f",  # light purple/light orange
+                                               "#a6cee3", "#b2df8a",  # light blue/light green
+                                               "#fb9a99", "#fdbf6f",  # light red/light orange
+                                               "#d9d9d9", "#80b1d3",  # grey/blue
+                                               "#ccebc5", "#bc80bd"  # mint/purple 
+      ))
+    
+
     
     if(!is.na(id2)) {
       
