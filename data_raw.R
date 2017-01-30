@@ -1,4 +1,4 @@
-dir_files <- "~/Desktop/new_woodward"
+dir_files <- "~/Desktop"
 setwd(dir_files)
 
 files <- list.files()
