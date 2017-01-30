@@ -1,4 +1,4 @@
-dir_files <- "~/Desktop/new"
+dir_files <- "~/Desktop/new_woodward"
 setwd(dir_files)
 
 files <- list.files()
@@ -19,13 +19,13 @@ file.copy(move, dir)
 
 # for fitbit files: 
 
-setwd(dir)
+setwd("~/Desktop/woodward_fb")
 
 hr <- grep("heartrate", list.files(), value = TRUE)
 hr_new <- paste0(substr(hr, 1, 4), "_fb_hr.rds")
 file.rename(hr, hr_new)
 
-step <- grep("steps", list.files(), value = TRUE)
+step <- grep("Steps", list.files(), value = TRUE)
 step_new <- paste0(substr(step, 1, 4), "_fb_steps.rds")
 file.rename(step, step_new)
 
