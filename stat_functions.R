@@ -3,47 +3,34 @@
 
 # want to calculate lowest on a per minute basis (?)
 
-resting <- function(id) {
+# block is the unit of seconds that you would like to calculate averages for
+
+hr_work <- function(id, block = 15) {
   
   df <- heartrate_df(id, fb_hr_breaks = "1 sec", h_hr_breaks = "1 sec", 
                      filter = FALSE)
   
-#  h <- filter(df, Device == "hexoskin")
-#  fb <- filter(df, Device == "fitbit")
+  df <- filter(df, Device == "hexoskin" & !is.na(heartrate))
   
-  df_h <- filter(df, Device == "hexoskin" & !is.na(heartrate))
-#  df_fb <- filter(df, Device == "fitbit" & !is.na(heartrate))
+  loop_n <- (block - 1)
+  loop_index <- nrow(df) - loop_n
   
-#  perc_missing_h <- (nrow(h) - nrow(df_h)) / nrow(h)
-#  perc_missing_fb <- (nrow(fb) - nrow(df_fb)) / nrow(fb)
-  
-  for (i in 1:nrow(df_h)) {
-    min_h <- df_h[i:60, 3]
-    avg_h <- mean(min_h$heartrate)
+  for (i in 1:loop_index) {
+    
+    sec <- df[i:(i + loop_n), 3]
+    avg <- mean(sec$heartrate)
     
     if (i == 1) {
-      out_h <- avg_h
+      out <- avg
     } else {
-      out_h <- c(out_h, avg_h)
+      out <- c(out, avg)
     }
+    
   }
   
-  rest_h <- min(out_h)
+  work_rest <- min(out)
   
-  # for (i in 1:nrow(df_fb)) {
-  #   min_fb <- df_fb[i:60, 3]
-  #   avg_fb <- mean(min_fb$heartrate)
-  #   
-  #   if (i == 1) {
-  #     out_fb <- avg_fb
-  #   } else {
-  #     out_fb <- c(out_fb, avg_fb)
-  #   }
-  # }
-  
-#  rest_fb <- min(out_fb)
-  
-  out_df <- data.frame(ID = id, resting_hr = rest_h)
+  out_df <- data.frame(ID = id, resting_at_work = work_rest)
   
   return(out_df)
   
@@ -57,7 +44,7 @@ for (i in 1:length(ids)) {
   
   possibleError <- tryCatch({
     
-    df <- resting(ids[i])
+    df <- hr_work(ids[i])
     if(i == 1){
       out <- df
     } else {
@@ -73,13 +60,8 @@ for (i in 1:length(ids)) {
   
 }
 
-#saveRDS(out, "data/resting_hr.rds")
-rest <- readRDS("data/resting_hr.rds")
-
-# probably better to rely on hexoskin ? 
-# missing data for 202n (missing fitbit hr data) and 210n (missing hexoskin data) 
-
-# need to add 202n 
+#saveRDS(out, "data/resting_work_15.rds")
+rest <- readRDS("data/resting_work_15.rds")
 
 
 perc_max <- function(avg, rest, pred) {
@@ -149,4 +131,6 @@ icc <- function(id, alpha = 0.05) {
 
 # resting heart rate estimation 
 # make note of problem IDs
+
+
 
