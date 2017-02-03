@@ -25,6 +25,10 @@ fitbit <- function(id, fb_hr_breaks = "1 min") {
     ungroup(date_time) %>%
     mutate(steps = round(steps, 0), 
            date_time = lubridate::ymd_hms(date_time))
+  
+  if (id == "700n") {
+    fb_steps <- mutate(fb_steps, date_time = (date_time - lubridate::days(6)))
+  }
     
   hr_file <- paste0(id, "_fb_hr")
   fb_hr <- readRDS(paste0("data/", hr_file, ".rds"))
@@ -40,6 +44,10 @@ fitbit <- function(id, fb_hr_breaks = "1 min") {
     ungroup(date_time) %>%
     mutate(heart_rate = round(heart_rate, 0), 
            date_time = lubridate::ymd_hms(date_time))
+  
+  if (id == "700n") {
+    fb_hr <- mutate(fb_hr, date_time = (date_time - lubridate::days(6)))
+  }
     
   fb <- list("steps" = fb_steps, 
              "hr" = fb_hr)
