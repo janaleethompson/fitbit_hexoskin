@@ -71,6 +71,13 @@ hexoskin <- function(id, br_breaks = "1 min") {
   #  mutate(date_time = force_tz(date_time, tzone = "MST")) %>%
     mutate(date_time = force_tz(date_time, tzone = "UTC")) # %>%
   #  mutate(sec = as.integer(lubridate::second(date_time)))
+  
+  if (id == "504n") {
+    
+    max_time <- lubridate::ymd_hms('2016-11-12 18:27:00')
+    hexo_hr <- filter(hexo_hr, date_time <= max_time)
+    
+  }
 
   hexo_breathing <- select(hexo, date_time, breathing_rate) %>% 
     group_by(date_time = cut(date_time, breaks = br_breaks)) %>%
@@ -79,6 +86,13 @@ hexoskin <- function(id, br_breaks = "1 min") {
     mutate(breathing_rate = round(breathing_rate, 0), 
            date_time = lubridate::ymd_hms(date_time)) %>%
     unique() 
+  
+  if (id == "504n") {
+    
+    max_time <- lubridate::ymd_hms('2016-11-12 18:27:00')
+    hexo_breathing <- filter(hexo_breathing, date_time <= max_time)
+    
+  }
   
   hexo_steps <- select(hexo, date_time, cadence) %>% 
     rename(steps = cadence) %>%
@@ -457,7 +471,8 @@ hr_plot_mult <- function(ids, br_breaks = "1 min", fb_hr_breaks = "1 min",
                                                "#fb9a99",# "#fdbf6f",  # light red/light orange
                                                "#d9d9d9",# "#80b1d3",  # grey/blue
                                                "#ccebc5"# "#bc80bd"  # mint/purple 
-      ))
+      )) + 
+      ylim(50, 180)
     
     if (!is.na(id2)) {
       
@@ -546,7 +561,8 @@ hr_plot_mult <- function(ids, br_breaks = "1 min", fb_hr_breaks = "1 min",
                                                "#fdbf6f",  # light red/light orange
                                                "#80b1d3",  # grey/blue
                                                "#bc80bd"  # mint/purple 
-      ))
+      )) + 
+      ylim(50, 180)
     
     if (!is.na(id2)) {
       plot <- plot + geom_line(data = to_plot_fb2, alpha = alpha, 
@@ -617,7 +633,8 @@ hr_plot_mult <- function(ids, br_breaks = "1 min", fb_hr_breaks = "1 min",
                                                "#fb9a99", "#fdbf6f",  # light red/light orange
                                                "#d9d9d9", "#80b1d3",  # grey/blue
                                                "#ccebc5", "#bc80bd"  # mint/purple 
-      ))
+      )) + 
+      ylim(50, 180)
     
 
     
@@ -869,7 +886,8 @@ br_plot_mult <- function(ids, br_breaks = "1 min", date_break = "30 min",
     scale_color_manual("IDs", values = c("#1f78b4", "#33a02c", "#e31a1c", 
                                          "#ff7f00", "#6a3d9a", "#ffffb3", 
                                          "#fb8072", "#fdb462", "#fccde5", 
-                                         "#bc80bd"))
+                                         "#bc80bd")) + 
+    ylim(5, 50)
   
   if (!is.na(id2)) {
     df2 <- hexoskin(id2, br_breaks)$breathing
@@ -1023,7 +1041,8 @@ stepcount_plot <- function(id, filter = TRUE) {
     theme_few() + 
     ylab("Step Count per hour") + 
     xlab("") + 
-    scale_fill_brewer(palette = "Set1") 
+    scale_fill_brewer(palette = "Set1") +
+    ylim(0, 3250)
   
   return(plot)
   
