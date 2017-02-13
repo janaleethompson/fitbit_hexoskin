@@ -32,9 +32,11 @@ navbarPage(
         Dec7am = c('908n', '909n', '912n'), 
       #  Jan17am = c('101w', ''), fitbit data here looks messed up.
         Jan19am = c('104w', '107w', '105w', '109w', '100w', '108w', '103w', '106w', '110w'), 
-        Jan27am = c('114w', '115w', '120w', '121w', '113w', '118w', '116w', '117w', '119w', '111w', '112w'), 
-        Feb9am = c('913n', ''), 
-        Feb10am = c('122w', '123w')),
+        Jan27am = c('114w', '115w', '120w', '121w', '113w', '118w', '116w', '117w', '119w', '111w', '112w')
+      #, 
+       # Feb9am = c('913n', ''), 
+       # Feb10am = c('122w', '123w') #missing fitbit data for these three. 
+      ),
             multiple = TRUE, options = list(maxItems = 11, placeholder = 'select one or multiple IDs'))),
             
       column(3, selectInput('hr_date', 'Date Breaks', c('30 min', '60 min', '2 hours'))), 
@@ -91,9 +93,11 @@ navbarPage(
                                                    Dec7am = c('908n', '909n', '912n'), 
                                                    #  Jan17am = c('101w', ''), fitbit data here looks messed up.
                                                    Jan19am = c('104w', '107w', '105w', '109w', '100w', '108w', '103w', '106w', '110w'), 
-                                                   Jan27am = c('114w', '115w', '120w', '121w', '113w', '118w', '116w', '117w', '119w', '111w', '112w'), 
-                                                   Feb9am = c('913n', ''), 
-                                                   Feb10am = c('122w', '123w')),
+                                                   Jan27am = c('114w', '115w', '120w', '121w', '113w', '118w', '116w', '117w', '119w', '111w', '112w')
+                                                   #, 
+                                                   #Feb9am = c('913n', ''), 
+                                                   #Feb10am = c('122w', '123w')
+                                                   ),
                                                multiple = TRUE, options = list(maxItems = 11, placeholder = 'select one or multiple IDs'))),                          
                       
                       
@@ -145,9 +149,11 @@ navbarPage(
                  Dec7am = c('908n', '909n', '912n'), 
                  #  Jan17am = c('101w', ''), fitbit data here looks messed up.
                  Jan19am = c('104w', '107w', '105w', '109w', '100w', '108w', '103w', '106w', '110w'), 
-                 Jan27am = c('114w', '115w', '120w', '121w', '113w', '118w', '116w', '117w', '119w', '111w', '112w'), 
-                 Feb9am = c('913n', ''), 
-                 Feb10am = c('122w', '123w')),
+                 Jan27am = c('114w', '115w', '120w', '121w', '113w', '118w', '116w', '117w', '119w', '111w', '112w')
+                 #, 
+                 # Feb9am = c('913n', ''), 
+                 # Feb10am = c('122w', '123w')
+                 ),
                  multiple = TRUE, options = list(maxItems = 11, placeholder = 'select one or multiple IDs'))),               
                
                plotOutput('steps')

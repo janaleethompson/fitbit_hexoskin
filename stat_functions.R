@@ -1,8 +1,51 @@
+ids <- readRDS("data/unique_ids.rds")
+
 # percent max heart rate range required by job: 
 # 100*(avg hr on job - resting HR) / (predicted HR max - resting HR)
 
-# want to calculate lowest on a per minute basis (?)
+perc_max <- function(id) {
+  
+  stats <- readRDS("data/id_stats.rds")
+  stats <- filter(stats, id == id)
+  avg <- stats$average_hr
+  max <- stats$pred_max_hr
+  
+  resting <- readRDS("data/resting_work_5.rds")
+  resting <- filter(resting, ID == id)
+  resting <- resting$resting_at_work
+  
+  perc_max <- ((avg-resting)/(max-resting))*100
+  return(perc_max)
+  
+}
 
+percmax_loop <- function(ids) {
+  
+  for (i in 1:length(ids)) {
+    
+    possibleError <- tryCatch({
+      
+      df <- perc_max(ids[i])
+      if(i == 1){
+        out <- df
+      } else {
+        out <- rbind(out, df)
+      }
+      
+    }, error = function(e) {
+      e
+      message(paste0("problem with ID ", ids[i]))
+    })
+    
+    if(inherits(possibleError, "error")) next
+    
+  }
+  
+  return(out)
+  
+}
+
+# resting heartrate at work 
 # block is the unit of seconds that you would like to calculate averages for
 
 hr_work <- function(id, block = 15) {
@@ -36,61 +79,92 @@ hr_work <- function(id, block = 15) {
   
 }
 
-#setwd('data')
-#ids <- unique(substr(list.files(), 1, 4))
-#setwd('..')
 
-for (i in 1:length(ids)) {
+resthr_loop <- function(ids, block) {
   
-  possibleError <- tryCatch({
+  for (i in 1:length(ids)) {
     
-    df <- hr_work(ids[i])
-    if(i == 1){
-      out <- df
-    } else {
-      out <- rbind(out, df)
-    }
+    possibleError <- tryCatch({
+      
+      df <- hr_work(ids[i], block = block)
+      if(i == 1){
+        out <- df
+      } else {
+        out <- rbind(out, df)
+      }
+      
+    }, error = function(e) {
+      e
+      message(paste0("problem with ID ", ids[i]))
+    })
     
-  }, error = function(e) {
-    e
-    message(paste0("problem with ID ", ids[i]))
-  })
+    if(inherits(possibleError, "error")) next
+    
+  }
   
-  if(inherits(possibleError, "error")) next
+  return(out)
   
 }
 
 #saveRDS(out, "data/resting_work_15.rds")
-rest <- readRDS("data/resting_work_15.rds")
+#rest <- readRDS("data/resting_work_15.rds")
 
-
-perc_max <- function(avg, rest, pred) {
-  
-  perc <- 100*((avg - rest) / (pred - rest))
-  return(perc)
-
-}
-
-
-# average should be calculated from data 
+#saveRDS(out, "data/resting_work_5.rds")
 
 # basal metabolic rate
 # men: 10*(weight(kg)) + 6.25*(height(cm)) - 5*(age(years)) + 5
 # women: 10*(weight(kg)) + 6.25*(height(cm)) - 5*(age(years)) - 161
 
-basal_men <- function(weight, height, years) {
+bmr <- function(ID) {
   
-  rate <- 10*weight*kg + 6.25*height*cm - 5*age*years + 5
-  return(rate)
+  stats <- readRDS("data/id_stats.rds")
+  stats <- filter(stats, id == ID)
+  weight <- stats$weight_kg
+  age <- stats$age
+  height <- stats$height_cm
+  
+  if (gender == "M") {
+    
+    bmr <- 10*weight + 6.25*height - 5*age + 5
+    
+  } else {
+    
+    bmr <- 10*weight + 6.25*height - 5*age - 161
+    
+  }
+  
+  return(bmr)
   
 }
 
-basal_women <- funtion(weight, height, years) {
+bmr_loop <- function(ids) {
   
-  rate <- 10*weight*kg + 6.25*height*cm - 5*age*years - 161
-  return(rate)
+  for (i in 1:length(ids)) {
+    
+    possibleError <- tryCatch({
+      
+      df <- bmr(ids[i])
+      if(i == 1){
+        out <- df
+      } else {
+        out <- rbind(out, df)
+      }
+      
+    }, error = function(e) {
+      e
+      message(paste0("problem with ID ", ids[i]))
+    })
+    
+    if(inherits(possibleError, "error")) next
+    
+  }
+  
+  return(out)
   
 }
+
+
+
 
 # step counts, heart rate for devices: two sample t-test 
 

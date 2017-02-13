@@ -158,47 +158,70 @@ hexoskin <- function(id, br_breaks = "1 min") {
 heartrate_df <- function(id, br_breaks = "1 min", fb_hr_breaks = "1 min", 
                          h_hr_breaks = "1 min", filter = TRUE) {
   
-  fb <- fitbit(id, fb_hr_breaks)
-  fb_hr <- fb$hr
-  
-  hexo <- hexoskin(id, br_breaks)$hr
-  
-  if (filter == TRUE) {
+  if ((id == "122w") | (id == "123w") | (id == "913n")) {
     
-    if (min(hexo$date_time) < min(fb_hr$date_time)) { 
-      hexo <- filter(hexo, date_time >= min(fb_hr$date_time))
-    } else {
-      fb_hr <- filter(fb_hr, date_time >= min(hexo$date_time))
-    }
+    hexo <- hexoskin(id, br_breaks)$hr
     
-    if (max(hexo$date_time) < max(fb_hr$date_time)) {
-      fb_hr <- filter(fb_hr, date_time <= max(hexo$date_time))
-    } else {
-      hexo <- filter(hexo, date_time <= max(fb_hr$date_time))
+    hexo <- hexo %>%
+      group_by(date_time = cut(date_time, breaks = h_hr_breaks)) %>%  
+      summarize(heart_rate = mean(heart_rate, na.rm = TRUE)) %>%
+      ungroup(date_time) %>%
+      mutate(heart_rate = round(heart_rate, 0), 
+             date_time = lubridate::ymd_hms(date_time))
+    
+    hexo <- unique(hexo)
+    
+    hr <- rename(hexo, heartrate = heart_rate)
+    hr$Device <- "hexoskin"
+    hr <- hr[,c(1, 3, 2)]
+    
+    return(hr)
+    
+  } else {
+    
+    fb <- fitbit(id, fb_hr_breaks)
+    fb_hr <- fb$hr
+    
+    hexo <- hexoskin(id, br_breaks)$hr
+    
+    if (filter == TRUE) {
+      
+      if (min(hexo$date_time) < min(fb_hr$date_time)) { 
+        hexo <- filter(hexo, date_time >= min(fb_hr$date_time))
+      } else {
+        fb_hr <- filter(fb_hr, date_time >= min(hexo$date_time))
+      }
+      
+      if (max(hexo$date_time) < max(fb_hr$date_time)) {
+        fb_hr <- filter(fb_hr, date_time <= max(hexo$date_time))
+      } else {
+        hexo <- filter(hexo, date_time <= max(fb_hr$date_time))
+      }
+      
+      hexo <- hexo %>%
+        filter(date_time >= min(fb_hr$date_time) & date_time <= max(fb_hr$date_time))
+      
     }
     
     hexo <- hexo %>%
-      filter(date_time >= min(fb_hr$date_time) & date_time <= max(fb_hr$date_time))
+      group_by(date_time = cut(date_time, breaks = h_hr_breaks)) %>%  
+      summarize(heart_rate = mean(heart_rate, na.rm = TRUE)) %>%
+      ungroup(date_time) %>%
+      mutate(heart_rate = round(heart_rate, 0), 
+             date_time = lubridate::ymd_hms(date_time))
+    
+    hexo <- unique(hexo)
+    fb_hr <- unique(fb_hr)
+    
+    hr <- full_join(hexo, fb_hr, by = "date_time") %>%
+      rename(hexoskin = heart_rate.x,
+             fitbit = heart_rate.y) %>%
+      gather("Device", "heartrate", 2:3)
+    
+    return(hr)
     
   }
   
-  hexo <- hexo %>%
-    group_by(date_time = cut(date_time, breaks = h_hr_breaks)) %>%  
-    summarize(heart_rate = mean(heart_rate, na.rm = TRUE)) %>%
-    ungroup(date_time) %>%
-    mutate(heart_rate = round(heart_rate, 0), 
-           date_time = lubridate::ymd_hms(date_time))
-  
-  hexo <- unique(hexo)
-  fb_hr <- unique(fb_hr)
-  
-  hr <- full_join(hexo, fb_hr, by = "date_time") %>%
-    rename(hexoskin = heart_rate.x,
-           fitbit = heart_rate.y) %>%
-    gather("Device", "heartrate", 2:3)
-  
-  return(hr)
-
 }
 
 
