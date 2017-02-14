@@ -1,50 +1,5 @@
 ids <- readRDS("data/unique_ids.rds")
 
-# percent max heart rate range required by job: 
-# 100*(avg hr on job - resting HR) / (predicted HR max - resting HR)
-
-perc_max <- function(id) {
-  
-  stats <- readRDS("data/id_stats.rds")
-  stats <- filter(stats, id == id)
-  avg <- stats$average_hr
-  max <- stats$pred_max_hr
-  
-  resting <- readRDS("data/resting_work_5.rds")
-  resting <- filter(resting, ID == id)
-  resting <- resting$resting_at_work
-  
-  perc_max <- ((avg-resting)/(max-resting))*100
-  return(perc_max)
-  
-}
-
-percmax_loop <- function(ids) {
-  
-  for (i in 1:length(ids)) {
-    
-    possibleError <- tryCatch({
-      
-      df <- perc_max(ids[i])
-      if(i == 1){
-        out <- df
-      } else {
-        out <- rbind(out, df)
-      }
-      
-    }, error = function(e) {
-      e
-      message(paste0("problem with ID ", ids[i]))
-    })
-    
-    if(inherits(possibleError, "error")) next
-    
-  }
-  
-  return(out)
-  
-}
-
 # resting heartrate at work 
 # block is the unit of seconds that you would like to calculate averages for
 
@@ -110,6 +65,51 @@ resthr_loop <- function(ids, block) {
 #rest <- readRDS("data/resting_work_15.rds")
 
 #saveRDS(out, "data/resting_work_5.rds")
+
+# percent max heart rate range required by job: 
+# 100*(avg hr on job - resting HR) / (predicted HR max - resting HR)
+
+perc_max <- function(id) {
+  
+  stats <- readRDS("data/id_stats.rds")
+  stats <- filter(stats, id == id)
+  avg <- stats$average_hr
+  max <- stats$pred_max_hr
+  
+  resting <- readRDS("data/resting_work_5.rds")
+  resting <- filter(resting, ID == id)
+  resting <- resting$resting_at_work
+  
+  perc_max <- ((avg-resting)/(max-resting))*100
+  return(perc_max)
+  
+}
+
+percmax_loop <- function(ids) {
+  
+  for (i in 1:length(ids)) {
+    
+    possibleError <- tryCatch({
+      
+      df <- perc_max(ids[i])
+      if(i == 1){
+        out <- df
+      } else {
+        out <- rbind(out, df)
+      }
+      
+    }, error = function(e) {
+      e
+      message(paste0("problem with ID ", ids[i]))
+    })
+    
+    if(inherits(possibleError, "error")) next
+    
+  }
+  
+  return(out)
+  
+}
 
 # basal metabolic rate
 # men: 10*(weight(kg)) + 6.25*(height(cm)) - 5*(age(years)) + 5
@@ -206,5 +206,45 @@ icc <- function(id, alpha = 0.05) {
 # resting heart rate estimation 
 # make note of problem IDs
 
+
+# looking into resting heartrate problem: getting results that are too low:
+rest <- readRDS("data/resting_work_15.rds")
+
+ids <- rest$ID
+
+exp_plots <- function(ids, dir, averaging) {
+  
+  dir <- paste0("~/Desktop/", dir)
+  
+  if(!dir.exists(dir)) {
+    dir.create(dir)
+  }
+  
+  
+  for (i in 1:length(ids)) { 
+    
+    file_name <- paste0(ids[i], ".png")
+    grDevices::png(filename = paste0(dir, "/", file_name))
+    
+    to_plot <- heartrate_df(ids[i], fb_hr_breaks = "1 sec", h_hr_breaks = "1 sec", 
+                            filter = FALSE)
+    to_plot <- filter(to_plot, !is.na(heartrate)) %>%
+      filter(Device == "hexoskin")
+    
+    plot(to_plot$date_time, to_plot$heartrate, type = "l", col = "red", main = ids[i], 
+         xlab = "time", ylab = "heartrate", ylim = c(0, 180))
+    abline(h = 30, v = 1)
+    abline(h = 60, v = 1)
+    
+    grDevices::dev.off()
+    
+  }
+  
+}
+
+exp_plots(ids, "15", 15)
+exp_plots(ids, "30", 30)
+exp_plots(ids, "45", 45)
+exp_plots(ids, "60", 60)
 
 

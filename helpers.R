@@ -554,7 +554,7 @@ hr_plot_mult <- function(ids, br_breaks = "1 min", fb_hr_breaks = "1 min",
                                                "#d9d9d9",# "#80b1d3",  # grey/blue
                                                "#ccebc5"# "#bc80bd"  # mint/purple 
       )) + 
-      ylim(50, 180)
+      ylim(0, 180)
     
     if (!is.na(id2)) {
       
@@ -651,7 +651,7 @@ hr_plot_mult <- function(ids, br_breaks = "1 min", fb_hr_breaks = "1 min",
                                                "#80b1d3",  # grey/blue
                                                "#bc80bd"  # mint/purple 
       )) + 
-      ylim(50, 180)
+      ylim(0, 180)
     
     if (!is.na(id2)) {
       plot <- plot + geom_line(data = to_plot_fb2, alpha = alpha, 
@@ -728,7 +728,7 @@ hr_plot_mult <- function(ids, br_breaks = "1 min", fb_hr_breaks = "1 min",
                                                "#d9d9d9", "#80b1d3",  # grey/blue
                                                "#ccebc5", "#bc80bd"  # mint/purple 
       )) + 
-      ylim(50, 180)
+      ylim(0, 180)
     
 
     
