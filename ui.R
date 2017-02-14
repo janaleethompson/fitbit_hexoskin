@@ -30,7 +30,7 @@ navbarPage(
         Dec5am = c('902n', '910n', '901n', '900n'), 
         Dec6am = c('904n', '905n', '906n', '911n'), 
         Dec7am = c('908n', '909n', '912n'), 
-      #  Jan17am = c('101w', ''), fitbit data here looks messed up.
+        Jan17am = c('101w', ''), 
         Jan19am = c('104w', '107w', '105w', '109w', '100w', '108w', '103w', '106w', '110w'), 
         Jan27am = c('114w', '115w', '120w', '121w', '113w', '118w', '116w', '117w', '119w', '111w', '112w')
       #, 
@@ -91,7 +91,7 @@ navbarPage(
                                                    Dec5am = c('902n', '910n', '901n', '900n'), 
                                                    Dec6am = c('904n', '905n', '906n', '911n'), 
                                                    Dec7am = c('908n', '909n', '912n'), 
-                                                   #  Jan17am = c('101w', ''), fitbit data here looks messed up.
+                                                   Jan17am = c('101w', ''), 
                                                    Jan19am = c('104w', '107w', '105w', '109w', '100w', '108w', '103w', '106w', '110w'), 
                                                    Jan27am = c('114w', '115w', '120w', '121w', '113w', '118w', '116w', '117w', '119w', '111w', '112w')
                                                    #, 
@@ -147,7 +147,7 @@ navbarPage(
                  Dec5am = c('902n', '910n', '901n', '900n'), 
                  Dec6am = c('904n', '905n', '906n', '911n'), 
                  Dec7am = c('908n', '909n', '912n'), 
-                 #  Jan17am = c('101w', ''), fitbit data here looks messed up.
+                 Jan17am = c('101w', ''), 
                  Jan19am = c('104w', '107w', '105w', '109w', '100w', '108w', '103w', '106w', '110w'), 
                  Jan27am = c('114w', '115w', '120w', '121w', '113w', '118w', '116w', '117w', '119w', '111w', '112w')
                  #, 
