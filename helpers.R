@@ -37,6 +37,11 @@ fitbit <- function(id, fb_hr_breaks = "1 min") {
   if (id == "215q") {
     fb_steps <- mutate(fb_steps, date_time = (date_time - lubridate::hours(39)))
   }
+  
+  if (id == "101w") {
+    fb_steps <- filter(fb_steps, date_time >= lubridate::ymd_hms(ymd_hms("2017-01-27 17:02:00") - minutes(554))) %>%
+      mutate(date_time = date_time - lubridate::hours(233))
+  }
     
   hr_file <- paste0(id, "_fb_hr")
   fb_hr <- readRDS(paste0("data/", hr_file, ".rds"))
@@ -63,6 +68,11 @@ fitbit <- function(id, fb_hr_breaks = "1 min") {
   
   if (id == "215q") {
     fb_hr <- mutate(fb_hr, date_time = (date_time - lubridate::hours(39)))
+  }
+  
+  if (id == "101w") {
+    fb_hr <- filter(fb_hr, date_time >= lubridate::ymd_hms(ymd_hms("2017-01-27 17:02:00") - minutes(554))) %>%
+      mutate(date_time = date_time - lubridate::hours(233))
   }
     
   fb <- list("steps" = fb_steps, 
