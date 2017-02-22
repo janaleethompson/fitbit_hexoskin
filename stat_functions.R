@@ -115,6 +115,8 @@ percmax_loop <- function(ids) {
 # men: 10*(weight(kg)) + 6.25*(height(cm)) - 5*(age(years)) + 5
 # women: 10*(weight(kg)) + 6.25*(height(cm)) - 5*(age(years)) - 161
 
+# already calculated 
+
 bmr <- function(ID) {
   
   stats <- readRDS("data/id_stats.rds")
@@ -182,6 +184,35 @@ stepcount_ttest <- function(id) {
   
 }
 
+stepcountttest_loop <- function(ids) {
+  
+  for (i in 1:length(ids)) {
+    
+    possibleError <- tryCatch({
+      
+      p_val <- stepcount_ttest(ids[i])$p.value
+      df <- data.frame(id = ids[i], p_value = p_val)
+      if(i == 1){
+        out <- df
+      } else {
+        out <- rbind(out, df)
+      }
+      
+    }, error = function(e) {
+      e
+      message(paste0("problem with ID ", ids[i]))
+    })
+    
+    if(inherits(possibleError, "error")) next
+    
+  }
+  
+  return(out)
+  
+}
+
+# 506n, 701n
+#ids2 <- ids[! ids %in% c('506n', '701n', '122w', '123w', '200n', '202n', '913n')]
 
 # mean percent heart rate increase: two sample t-test
 # maybe 
@@ -226,7 +257,9 @@ exp_plots <- function(ids, dir, averaging) {
     file_name <- paste0(ids[i], ".png")
     grDevices::png(filename = paste0(dir, "/", file_name))
     
-    to_plot <- heartrate_df(ids[i], fb_hr_breaks = "1 sec", h_hr_breaks = "1 sec", 
+    avg <- paste0(averaging, " sec")
+    
+    to_plot <- heartrate_df(ids[i], fb_hr_breaks = avg, h_hr_breaks = avg, 
                             filter = FALSE)
     to_plot <- filter(to_plot, !is.na(heartrate)) %>%
       filter(Device == "hexoskin")
@@ -242,9 +275,8 @@ exp_plots <- function(ids, dir, averaging) {
   
 }
 
-exp_plots(ids, "15", 15)
-exp_plots(ids, "30", 30)
-exp_plots(ids, "45", 45)
-exp_plots(ids, "60", 60)
-
+#exp_plots(ids, "15", 15)
+#exp_plots(ids, "30", 30)
+#exp_plots(ids, "45", 45)
+#exp_plots(ids, "60", 60)
 

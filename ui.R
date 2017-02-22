@@ -41,7 +41,7 @@ navbarPage(
             
       column(3, selectInput('hr_date', 'Date Breaks', c('30 min', '60 min', '2 hours'))), 
       
-      column(3, selectInput('hr_avg', 'Aggregation', c('15 sec', '30 sec', '45 sec', 
+      column(3, selectInput('hr_avg', 'Aggregation', c('1 sec', '15 sec', '30 sec', '45 sec', 
                                                        '1 min', '2 min', '3 min', '4 min',
                                                        '5 min', '10 min'), 
                             selected = '1 min')),
@@ -154,7 +154,7 @@ navbarPage(
                  # Feb9am = c('913n', ''), 
                  # Feb10am = c('122w', '123w')
                  ),
-                 multiple = TRUE, options = list(maxItems = 11, placeholder = 'select one or multiple IDs'))),               
+                 multiple = FALSE, options = list(maxItems = 11, placeholder = 'select one ID'))),               
                
                plotOutput('steps')
                

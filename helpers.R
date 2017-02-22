@@ -1,3 +1,5 @@
+# need to change y axis limits for hr back to 50-180
+
 library(tidyverse)
 library(lubridate)
 library(ggthemes)
@@ -19,7 +21,57 @@ fitbit <- function(id, fb_hr_breaks = "1 min") {
                                   tz = "UTC")) %>%
  #   mutate(date_time = force_tz(date_time, tzone = "MST")) %>%
     select(date_time, Steps) %>%
-    rename(steps = Steps) %>%
+    rename(steps = Steps)
+  
+  if (id == "301n"){
+    fb_steps <- filter(fb_steps, date_time <= lubridate::ymd_hms("2016-11-07 15:17:00"))
+  }
+  
+  if (id == "303n") {
+    fb_steps <- filter(fb_steps, date_time <= lubridate::ymd_hms("2016-11-08 17:05:00"))
+  }
+  
+  if (id == "306n") {
+    fb_steps <- filter(fb_steps, date_time <= lubridate::ymd_hms("2016-11-08 15:19:00"))
+  }
+  
+  if (id == "307n") {
+    fb_steps <- filter(fb_steps, date_time <= lubridate::ymd_hms("2016-11-14 17:58:00"))
+  }
+  
+  if (id == "504n") {
+    fb_steps <- filter(fb_steps, date_time <= lubridate::ymd_hms("2016-11-12 18:16:00"))
+  }
+  
+  if (id == "700n") {
+    fb_steps <- filter(fb_steps, date_time <= lubridate::ymd_hms("2016-11-09 17:36:00"))
+  }
+  
+  if (id == "903n") {
+    fb_steps <- filter(fb_steps, (date_time <= lubridate::ymd_hms("2016-12-06 13:15:00") | 
+                                    date_time >= lubridate::ymd_hms("2016-12-06 13:50:00")))
+  }
+  
+  if (id == "210q") {
+    fb_steps <- filter(fb_steps, date_time <= lubridate::ymd_hms("2016-11-29 15:28:00"))
+  }
+  
+  if (id == "103w") {
+    fb_steps <- filter(fb_steps, (date_time <= lubridate::ymd_hms("2017-01-18 12:30:00") | 
+                                    date_time >= lubridate::ymd_hms("2017-01-18 13:00:00")))
+  }
+  
+  if (id == "114w") {
+    fb_steps <- filter(fb_steps, date_time <= lubridate::ymd_hms("2017-01-26 13:00:00") |
+                      date_time >= lubridate::ymd_hms("2017-01-26 13:30:00"))
+  }
+  
+  if (id == "119w") {
+    fb_steps <- filter(fb_steps, date_time <= lubridate::ymd_hms("2017-01-26 15:42:00") |
+                      date_time >= lubridate::ymd_hms("2017-01-26 15:42:00"))
+  }
+  
+  fb_steps <- fb_steps %>%
     group_by(date_time = cut(date_time, breaks = "60 min")) %>%
     summarize(steps = sum(steps, na.rm= TRUE)) %>%
     ungroup(date_time) %>%
@@ -73,6 +125,56 @@ fitbit <- function(id, fb_hr_breaks = "1 min") {
   if (id == "101w") {
     fb_hr <- filter(fb_hr, date_time >= lubridate::ymd_hms(ymd_hms("2017-01-27 17:02:00") - minutes(554))) %>%
       mutate(date_time = date_time - lubridate::hours(233))
+  }
+  
+  ## taking activity logs into account: 
+  
+  if (id == "301n"){
+    fb_hr <- filter(fb_hr, date_time <= lubridate::ymd_hms("2016-11-07 15:17:00"))
+  }
+  
+  if (id == "303n") {
+    fb_hr <- filter(fb_hr, date_time <= lubridate::ymd_hms("2016-11-08 17:05:00"))
+  }
+  
+  if (id == "306n") {
+    fb_hr <- filter(fb_hr, date_time <= lubridate::ymd_hms("2016-11-08 15:19:00"))
+  }
+  
+  if (id == "307n") {
+    fb_hr <- filter(fb_hr, date_time <= lubridate::ymd_hms("2016-11-14 17:58:00"))
+  }
+  
+  if (id == "504n") {
+    fb_hr <- filter(fb_hr, date_time <= lubridate::ymd_hms("2016-11-12 18:16:00"))
+  }
+  
+  if (id == "700n") {
+    fb_hr <- filter(fb_hr, date_time <= lubridate::ymd_hms("2016-11-09 17:36:00"))
+  }
+  
+  if (id == "903n") {
+   fb_hr <- filter(fb_hr, date_time <= lubridate::ymd_hms("2016-12-06 13:15:00") |
+                      date_time >= lubridate::ymd_hms("2016-12-06 13:50:00"))
+  }
+  
+  if (id == "210q") {
+    fb_hr <- filter(fb_hr, date_time <= lubridate::ymd_hms("2016-11-29 15:28:00"))
+  }
+  
+  if (id == "103w") {
+   fb_hr <- filter(fb_hr, date_time <= lubridate::ymd_hms("2017-01-18 12:30:00") |
+                      date_time >= lubridate::ymd_hms("2017-01-18 13:50:00"))
+  }
+  
+  if (id == "114w") {
+    fb_hr <- filter(fb_hr, date_time <= lubridate::ymd_hms("2017-01-26 13:00:00") |
+                      date_time >= lubridate::ymd_hms("2017-01-26 13:30:00"))
+  }
+  
+  if (id == "119w") {
+    fb_hr <- filter(fb_hr, date_time <= lubridate::ymd_hms("2017-01-26 15:42:00") |
+                      date_time >= lubridate::ymd_hms("2017-01-26 15:42:00"))
   }
     
   fb <- list("steps" = fb_steps, 
