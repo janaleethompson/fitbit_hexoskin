@@ -123,21 +123,31 @@ percmax_loop <- function(ids) {
 #saveRDS(out, file = "data/percent_max.rds")
 # missing stat info for 910n
 
-# step counts, heart rate for devices: two sample t-test 
+# H1 step counts, heart rate for devices: two sample t-test 
 
 stepcount_ttest <- function(id) {
   
   df <- stepcount_df(id)
-  hex <- filter(df, Device == "hexoskin") %>%
-    collect %>% .[["steps"]]
-  fb <- filter(df, Device == "fitbit") %>%
-    collect %>% .[["steps"]]
+  hex <- filter(df, Device == "hexoskin") %>% collect %>% .[["steps"]]
+  fb <- filter(df, Device == "fitbit") %>% collect %>% .[["steps"]]
   
-  test <- t.test(hex, fb)
+  variance <- var.test(hex, fb)$p.value
   
-  return(test)
+  if (variance > 0.05) {
+    test <- t.test(hex, fb, var.equal = TRUE, paired = TRUE, alternative = "less")
+  } else {
+    test <- t.test(hex, fb, var.equal = FALSE, paired = TRUE, alternative = "less")
+  }
+  
+  pval <- test$p.value
+  
+  out <- data.frame(ID = id, p_value = pval)
+  
+  return(out)
   
 }
+
+# Ha: true difference in means is less than 0 (hexoskin < fitbit)
 
 stepcountttest_loop <- function(ids) {
   
@@ -145,9 +155,78 @@ stepcountttest_loop <- function(ids) {
     
     possibleError <- tryCatch({
       
-      p_val <- stepcount_ttest(ids[i])$p.value
-      df <- data.frame(id = ids[i], p_value = p_val)
-      if(i == 1){
+      df <- stepcount_ttest(ids[i])
+      
+      if (i == 1) {
+        out <- df
+      } else {
+        out <- rbind(out, df)
+      }
+      
+      
+    }, error = function(e) {
+      e
+      message(paste0("problem with ID ", ids[i]))
+    })
+    
+    if(inherits(possibleError, "error")) next
+    
+  }
+  
+  return(out)
+  
+}
+
+# 200n 202n 301n 122w, 123w, 913n
+# missing fitbit data for 122w, 123w, 913n 
+# ids <- ids[!ids %in% c("200n", "202n", "301n", "122w", "123w", "913n")]
+
+# out <- stepcountttest_loop(ids)
+# out <- mutate(out, sig = if_else(p_value < 0.05, TRUE, FALSE))
+# sig == TRUE indicates that hourly averages of fitbit stepcounts are greater than hexoskin 
+
+# saveRDS(out, file = "data/stepcount_ttest.rds")
+
+
+
+# H3 mean percent heart rate increase: two sample t-test
+# maybe 
+
+
+
+# H2 reliability between fitbit and hexoskin for steps: intra-class correlation 
+# coefficients (ICC) 
+
+library(ICC)
+
+icc <- function(id, alpha = 0.05) {
+  
+  df <- heartrate_df(id)
+  df <- df %>% select(-date_time) %>%
+    filter(!is.na(heartrate))
+  
+  coef <- ICC::ICCest(x = Device, y = heartrate, data = df, alpha = alpha)
+  icc <- round(coef$ICC, 4)
+  
+  lci <- round(coef$LowerCI, 4)
+  uci <- round(coef$UpperCI, 4)
+
+  ci <- paste0("(", lci, ", ", uci, ")")
+  
+  out <- data.frame(ID = id, ICC = icc, CI = ci)
+  return(out)
+  
+}
+
+icc_loop <- function(ids) {
+  
+  for (i in 1:length(ids)) {
+    
+    possibleError <- tryCatch({
+      
+      df <- icc(ids[i])
+      
+      if (i == 1) {
         out <- df
       } else {
         out <- rbind(out, df)
@@ -166,27 +245,8 @@ stepcountttest_loop <- function(ids) {
   
 }
 
-# 506n, 701n
-#ids2 <- ids[! ids %in% c('506n', '701n', '122w', '123w', '200n', '202n', '913n')]
-
-# mean percent heart rate increase: two sample t-test
-# maybe 
-
-
-
-# reliability between fitbit and hexoskin for steps: intra-class correlation 
-# coefficients (ICC) 
-
-library(ICC)
-
-icc <- function(id, alpha = 0.05) {
-  
-  df <- heartrate_df(id)
-  df <- df %>% select(-date_time)
-  
-  coef <- ICC::ICCest(x = Device, y = heartrate, data = df, alpha = alpha)
-  
-}
+# out <- icc_loop(ids)
+# saveRDS(out, "data/icc.rds")
 
 
 # resting heart rate estimation 
@@ -236,6 +296,120 @@ exp_plots <- function(ids, dir, averaging) {
 
 
 #exp_plots(ids, "rest_hr", 1)
+
+# H5: active workers will take significantly more steps throughout their work-shift
+# than sedentary workers 
+
+stats <- readRDS("data/id_stats.rds")
+active <- filter(stats, dept != "Office")$steps
+sedentary <- filter(stats, dept == "Office")$steps
+  
+variance <- var.test(active, sedentary)$p.value
+  
+if (variance > 0.05) {
+  test <- t.test(active, sedentary, var.equal = TRUE, paired = FALSE)
+} else {
+  test <- t.test(active, sedentary, var.equal = FALSE, paired = FALSE)
+}
+
+saveRDS(test, file = "data/active_sed_steps.rds")
+
+# two-sided hypothesis vs. one-sided...hypothesis is that active > sedentary 
+
+
+# H6: active workers will have a greater mean percent heart rate increase 
+
+# H3 fitbit measures of heartrate > hexoskin 
+
+heartrate_ttest <- function(id) {
+  
+  df <- heartrate_df(id)
+  hex <- filter(df, Device == "hexoskin") %>% collect %>% .[["heartrate"]]
+  fb <- filter(df, Device == "fitbit") %>% collect %>% .[["heartrate"]]
+  
+  variance <- var.test(hex, fb)$p.value
+  
+  if (variance > 0.05) {
+    test <- t.test(hex, fb, var.equal = TRUE, paired = TRUE, alternative = "less")
+  } else {
+    test <- t.test(hex, fb, var.equal = FALSE, paired = TRUE, alternative = "less")
+  }
+  
+  pval <- test$p.value
+  
+  out <- data.frame(ID = id, p_value = pval)
+  
+  return(out)
+  
+}
+
+heartratettest_loop <- function(ids) {
+  
+  for (i in 1:length(ids)) {
+    
+    possibleError <- tryCatch({
+      
+      df <- heartrate_ttest(ids[i])
+      
+      if (i == 1) {
+        out <- df
+      } else {
+        out <- rbind(out, df)
+      }
+      
+      
+    }, error = function(e) {
+      e
+      message(paste0("problem with ID ", ids[i]))
+    })
+    
+    if(inherits(possibleError, "error")) next
+    
+  }
+  
+  return(out)
+  
+}
+
+
+# out <- heartratettest_loop(ids)
+# problem w/ 122w, 123w, 913n
+# out <- mutate(out, sig = if_else(p_value < 0.05, TRUE, FALSE))
+# saveRDS(out, file = "data/heartrate_ttest.rds")
+
+# H7 
+
+stats <- readRDS("data/id_stats.rds")
+percmax <- readRDS("data/percent_max.rds")
+percmax <- rename(percmax, id = ID)
+stats <- full_join(percmax, stats, by = "id")
+
+active <- filter(stats, dept != "Office")$max
+sedentary <- filter(stats, dept == "Office")$max
+
+variance <- var.test(active, sedentary)$p.value
+
+if (variance > 0.05) {
+  test <- t.test(active, sedentary, var.equal = TRUE, paired = FALSE)
+} else {
+  test <- t.test(active, sedentary, var.equal = FALSE, paired = FALSE)
+}
+
+saveRDS(test, file = "data/active_sed_percmax.rds")
+
+
+# H8 ... unclear
+
+mets_test <- function(id) {
+  
+  df <- readRDS(paste0("data/", id, "_mets_clean.rds"))
+  
+}
+
+
+
+
+
 
 
 

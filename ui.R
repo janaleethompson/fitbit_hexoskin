@@ -166,8 +166,8 @@ navbarPage(
   tabPanel('METs', 
            
            fluidRow(column(3, selectizeInput('mets_id', 'Participant ID', choices = list(
-             Nov1am = c('204n', '208n', '207n', '203n', '202n', '206n', '205n', '200n'), 
-             Nov8am = c('303n', '306n', '302n', '305n', '300n', '301n', '304n'), 
+             Nov1am = c('204n', '208n', '207n', '203n', '206n', '205n'), # 202n, 200n
+             Nov8am = c('303n', '306n', '302n', '305n', '300n', '304n'), # 301n
              Nov9am = c('402n', '403n', '405n', '400n', '401n', '700n'), 
              Nov9pm = c('500n', ""), 
              Nov10pm = c('501n', ""),
