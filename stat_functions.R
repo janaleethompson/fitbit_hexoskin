@@ -10,12 +10,12 @@ hr_work <- function(id, average, block) {
   
   df <- filter(df, Device == "hexoskin" & !is.na(heartrate))
   
-  time <- select(df, date_time) %>% collect %>% .[["date_time"]]
-  end <- time[length(time)]
-  
-  stop <- end - lubridate::minutes(5)
-  
-  df <- filter(df, date_time <= stop)
+  # time <- select(df, date_time) %>% collect %>% .[["date_time"]]
+  # end <- time[length(time)]
+  # 
+  # stop <- end - lubridate::minutes(5)
+  # 
+  # df <- filter(df, date_time <= stop)
   
   loop_n <- (block - 1)
   loop_index <- nrow(df) - loop_n
@@ -69,11 +69,7 @@ resthr_loop <- function(ids, average, block) {
 }
 
 #out_15 <- resthr_loop(ids, "1 sec", 30)
-
-#saveRDS(out, "data/resting_work_15.rds")
-#rest <- readRDS("data/resting_work_15.rds")
-
-#saveRDS(out, "data/resting_work_5.rds")
+#saveRDS(out_15, "data/resting_work.rds")
 
 # percent max heart rate range required by job: 
 # 100*(avg hr on job - resting HR) / (predicted HR max - resting HR)
@@ -85,7 +81,7 @@ perc_max <- function(id) {
   avg <- stats$average_hr
   max <- stats$pred_max_hr
   
-  resting <- readRDS("data/resting_work_5.rds")
+  resting <- readRDS("data/resting_work.rds")
   resting <- filter(resting, ID == id)
   resting <- resting$resting_at_work
   
@@ -289,7 +285,7 @@ exp_plots <- function(ids, dir, averaging) {
 }
 
 
-exp_plots(ids, "rest_hr", 1)
+#exp_plots(ids, "rest_hr", 1)
 
 
 
