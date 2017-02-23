@@ -23,6 +23,40 @@ fitbit <- function(id, fb_hr_breaks = "1 min") {
     select(date_time, Steps) %>%
     rename(steps = Steps)
   
+  fb_steps <- fb_steps %>%
+    group_by(date_time = cut(date_time, breaks = "60 min")) %>%
+    summarize(steps = sum(steps, na.rm= TRUE)) %>%
+    ungroup(date_time) %>%
+    mutate(steps = round(steps, 0), 
+           date_time = lubridate::ymd_hms(date_time))
+  
+  # if(id == "307n") {
+  #   fb_steps <- mutate(fb_steps, date_time = (date_time - lubridate::hours(6)))
+  # }
+  
+  # if (id == "301n") {
+  #   fb_steps <- mutate(fb_steps, date_time = (date_time + lubridate::hours(15)))
+  # }
+  
+   if (id == "700n") {
+     fb_steps <- mutate(fb_steps, date_time = (date_time - lubridate::days(6)))
+   }
+  
+  if (id == "214q") {
+    fb_steps <- mutate(fb_steps, date_time = (date_time - lubridate::hours(12)))
+  }
+  
+  if (id == "215q") {
+    fb_steps <- mutate(fb_steps, date_time = (date_time - lubridate::hours(39)))
+  }
+  
+  if (id == "101w") {
+    fb_steps <- filter(fb_steps, date_time >= lubridate::ymd_hms(ymd_hms("2017-01-27 17:02:00") - minutes(554))) %>%
+      mutate(date_time = date_time - lubridate::hours(233))
+  }
+  
+  # Activity logs 
+  
   if (id == "301n"){
     fb_steps <- filter(fb_steps, date_time <= lubridate::ymd_hms("2016-11-07 15:17:00"))
   }
@@ -36,7 +70,7 @@ fitbit <- function(id, fb_hr_breaks = "1 min") {
   }
   
   if (id == "307n") {
-    fb_steps <- filter(fb_steps, date_time <= lubridate::ymd_hms("2016-11-14 17:58:00"))
+    fb_steps <- filter(fb_steps, date_time <= lubridate::ymd_hms("2016-11-15 17:58:00"))
   }
   
   if (id == "504n") {
@@ -63,37 +97,14 @@ fitbit <- function(id, fb_hr_breaks = "1 min") {
   
   if (id == "114w") {
     fb_steps <- filter(fb_steps, date_time <= lubridate::ymd_hms("2017-01-26 13:00:00") |
-                      date_time >= lubridate::ymd_hms("2017-01-26 13:30:00"))
+                         date_time >= lubridate::ymd_hms("2017-01-26 13:30:00"))
   }
   
   if (id == "119w") {
     fb_steps <- filter(fb_steps, date_time <= lubridate::ymd_hms("2017-01-26 15:42:00") |
-                      date_time >= lubridate::ymd_hms("2017-01-26 15:42:00"))
+                         date_time >= lubridate::ymd_hms("2017-01-26 15:42:00"))
   }
   
-  fb_steps <- fb_steps %>%
-    group_by(date_time = cut(date_time, breaks = "60 min")) %>%
-    summarize(steps = sum(steps, na.rm= TRUE)) %>%
-    ungroup(date_time) %>%
-    mutate(steps = round(steps, 0), 
-           date_time = lubridate::ymd_hms(date_time))
-  
-  if (id == "700n") {
-    fb_steps <- mutate(fb_steps, date_time = (date_time - lubridate::days(6)))
-  }
-  
-  if (id == "214q") {
-    fb_steps <- mutate(fb_steps, date_time = (date_time - lubridate::hours(12)))
-  }
-  
-  if (id == "215q") {
-    fb_steps <- mutate(fb_steps, date_time = (date_time - lubridate::hours(39)))
-  }
-  
-  if (id == "101w") {
-    fb_steps <- filter(fb_steps, date_time >= lubridate::ymd_hms(ymd_hms("2017-01-27 17:02:00") - minutes(554))) %>%
-      mutate(date_time = date_time - lubridate::hours(233))
-  }
     
   hr_file <- paste0(id, "_fb_hr")
   fb_hr <- readRDS(paste0("data/", hr_file, ".rds"))
@@ -110,9 +121,17 @@ fitbit <- function(id, fb_hr_breaks = "1 min") {
     mutate(heart_rate = round(heart_rate, 0), 
            date_time = lubridate::ymd_hms(date_time))
   
-  if (id == "700n") {
-    fb_hr <- mutate(fb_hr, date_time = (date_time - lubridate::days(6)))
-  }
+  # if(id == "307n") {
+  #   fb_hr <- mutate(fb_hr, date_time = (date_time - lubridate::hours(6)))
+  # }
+  
+  # if (id == "301n") {
+  #   fb_hr <- mutate(fb_hr, date_time = (date_time + lubridate::hours(15)))
+  # }
+  
+   if (id == "700n") {
+     fb_hr <- mutate(fb_hr, date_time = (date_time - lubridate::days(6)))
+   }
   
   if (id == "214q") {
     fb_hr <- mutate(fb_hr, date_time = (date_time - lubridate::hours(12)))
@@ -130,7 +149,7 @@ fitbit <- function(id, fb_hr_breaks = "1 min") {
   ## taking activity logs into account: 
   
   if (id == "301n"){
-    fb_hr <- filter(fb_hr, date_time <= lubridate::ymd_hms("2016-11-07 15:17:00"))
+    fb_hr <- filter(fb_hr, date_time <= lubridate::ymd_hms("2016-11-08 15:17:00"))
   }
   
   if (id == "303n") {
@@ -142,7 +161,7 @@ fitbit <- function(id, fb_hr_breaks = "1 min") {
   }
   
   if (id == "307n") {
-    fb_hr <- filter(fb_hr, date_time <= lubridate::ymd_hms("2016-11-14 17:58:00"))
+    fb_hr <- filter(fb_hr, date_time <= lubridate::ymd_hms("2016-11-15 17:58:00"))
   }
   
   if (id == "504n") {
@@ -1277,3 +1296,51 @@ stepcount_plot <- function(id, filter = TRUE) {
 }
 
 
+# METs 
+
+mets <- function(id) {
+  
+  shift <- heartrate_df(id)
+  shift <- shift %>% select(date_time) %>% collect %>% .[["date_time"]]
+  
+  start <- shift[1]
+  stop <- shift[length(shift)]
+  
+  mets <- readRDS(paste0("data/", id, "_mets.rds"))
+  mets <- mets %>%
+    mutate(date_time = as.POSIXct(ActivityMinute, 
+                                  format = "%m/%d/%Y %I:%M:%S %p", 
+                                  tz = "UTC")) %>% 
+    select(date_time, METs) %>%
+    rename(mets = METs) 
+  
+  if (id == "700n") {
+    mets <- mutate(mets, date_time = date_time - lubridate::days(6))
+  }
+  
+  if (id == "214q") {
+    mets <- mutate(mets, date_time = (date_time - lubridate::hours(13)))
+  }
+  
+  if (id == "215q") {
+    mets <- mutate(mets, date_time = (date_time - lubridate::hours(39)))
+  }
+  
+  if (id == "101w") {
+    mets <- filter(mets, date_time >= lubridate::ymd_hms("2017-01-27 00:00:00"))
+    mets <- mutate(mets, date_time = (date_time - lubridate::hours(234)))
+  }
+  
+  mets <- mets %>%  
+    filter(date_time >= start & date_time <= stop) %>%
+    group_by(date_time = cut(date_time, breaks = "1 hour")) %>%
+    summarize(mets = mean(mets, na.rm = TRUE)) %>%
+    ungroup(date_time) %>%
+    mutate(mets = round(mets, 2), 
+           date_time = lubridate::ymd_hms(date_time))
+  
+  return(mets)
+  
+}
+
+#ids <- substr(grep("mets", list.files("data"), value = TRUE), 1, 4)

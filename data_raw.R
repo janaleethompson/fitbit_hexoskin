@@ -52,6 +52,32 @@ for (i in 1:length(mets)) {
   saveRDS(data, file = paste0("~/Documents/gs/R/fitbit_hexoskin/data/", names[i], ".rds"))
 }
 
+for (i in ids) {
+  
+  possibleError <- tryCatch({
+    
+    df <- mets(i)
+    saveRDS(df, file = paste0("data/", i, "_mets_clean.rds"))
+    
+  }
+  , 
+  error = function(e) {
+    e
+    message(paste0("Error with ID ", i, "."))
+  }
+  )
+  if (inherits(possibleError, "error")) next 
+  
+}
 
+# 101w, 214q, 215q, 301n, 307n, 700n
+# error with 301n is (probably) fixed 
+# with the rest of these, check if fitbit data is being read in correctly, 
+# (to match hexoskin time) then check if mets time is not matching. May need 
+# to re-download these. 
+
+
+# THEN get going on resting heart rate and working through hypotheses. 
+# (what does JT mean by "stats part"?)
 
 
