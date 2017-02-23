@@ -42,3 +42,9 @@ colnames(df) <- c('id', 'dob', 'gender', 'age', 'pred_max_hr', 'dept', 'steps',
 
 setwd('~/Documents/gs/R/fitbit_hexoskin')
 
+# METs 
+
+mets <- list.files('~/Documents/gs/R/JT/METs')
+# need to re-download some of these - downloaded wrong files
+
+
