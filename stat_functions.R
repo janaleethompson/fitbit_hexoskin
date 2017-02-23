@@ -1,14 +1,21 @@
 ids <- readRDS("data/unique_ids.rds")
 
 # resting heartrate at work 
-# block is the unit of seconds that you would like to calculate averages for
+# block is the unit that you would like to calculate averages over
 
-hr_work <- function(id, block = 15) {
+hr_work <- function(id, average, block) {
   
-  df <- heartrate_df(id, fb_hr_breaks = "1 sec", h_hr_breaks = "1 sec", 
-                     filter = FALSE)
+  df <- heartrate_df(id, fb_hr_breaks = avg, h_hr_breaks = avg, 
+                     filter = TRUE)
   
   df <- filter(df, Device == "hexoskin" & !is.na(heartrate))
+  
+  time <- select(df, date_time) %>% collect %>% .[["date_time"]]
+  end <- time[length(time)]
+  
+  stop <- end - lubridate::minutes(5)
+  
+  df <- filter(df, date_time <= stop)
   
   loop_n <- (block - 1)
   loop_index <- nrow(df) - loop_n
@@ -35,13 +42,13 @@ hr_work <- function(id, block = 15) {
 }
 
 
-resthr_loop <- function(ids, block) {
+resthr_loop <- function(ids, average, block) {
   
   for (i in 1:length(ids)) {
     
     possibleError <- tryCatch({
       
-      df <- hr_work(ids[i], block = block)
+      df <- hr_work(ids[i], average = average, block = block)
       if(i == 1){
         out <- df
       } else {
@@ -60,6 +67,8 @@ resthr_loop <- function(ids, block) {
   return(out)
   
 }
+
+#out_15 <- resthr_loop(ids, "1 sec", 30)
 
 #saveRDS(out, "data/resting_work_15.rds")
 #rest <- readRDS("data/resting_work_15.rds")
@@ -239,9 +248,6 @@ icc <- function(id, alpha = 0.05) {
 
 
 # looking into resting heartrate problem: getting results that are too low:
-rest <- readRDS("data/resting_work_15.rds")
-
-ids <- rest$ID
 
 exp_plots <- function(ids, dir, averaging) {
   
@@ -260,9 +266,16 @@ exp_plots <- function(ids, dir, averaging) {
     avg <- paste0(averaging, " sec")
     
     to_plot <- heartrate_df(ids[i], fb_hr_breaks = avg, h_hr_breaks = avg, 
-                            filter = FALSE)
+                            filter = TRUE)
     to_plot <- filter(to_plot, !is.na(heartrate)) %>%
-      filter(Device == "hexoskin")
+      filter(Device == "hexoskin") 
+    
+    time <- select(to_plot, date_time) %>% collect %>% .[["date_time"]]
+    end <- time[length(time)]
+    
+    stop <- end - lubridate::minutes(5)
+    
+    to_plot <- filter(to_plot, date_time <= stop)
     
     plot(to_plot$date_time, to_plot$heartrate, type = "l", col = "red", main = ids[i], 
          xlab = "time", ylab = "heartrate", ylim = c(0, 180))
@@ -275,8 +288,8 @@ exp_plots <- function(ids, dir, averaging) {
   
 }
 
-#exp_plots(ids, "15", 15)
-#exp_plots(ids, "30", 30)
-#exp_plots(ids, "45", 45)
-#exp_plots(ids, "60", 60)
+
+exp_plots(ids, "rest_hr", 1)
+
+
 
