@@ -45,6 +45,13 @@ setwd('~/Documents/gs/R/fitbit_hexoskin')
 # METs 
 
 mets <- list.files('~/Documents/gs/R/JT/METs')
-# need to re-download some of these - downloaded wrong files
+names <- paste0(substr(mets, 1, 4), "_mets")
+
+for (i in 1:length(mets)) {
+  data <- read.csv(paste0("~/Documents/gs/R/JT/METs/", mets[i]))
+  saveRDS(data, file = paste0("~/Documents/gs/R/fitbit_hexoskin/data/", names[i], ".rds"))
+}
+
+
 
 
