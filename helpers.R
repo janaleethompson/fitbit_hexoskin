@@ -1343,4 +1343,15 @@ mets <- function(id) {
   
 }
 
-#ids <- substr(grep("mets", list.files("data"), value = TRUE), 1, 4)
+mets_plot <- function(id, date_break = "1 hour") {
+  
+  df <- mets(id)
+  plot <- ggplot(df, aes(x = date_time, y = mets)) + geom_bar(stat = "identity") + 
+    scale_x_datetime(name = NULL, breaks = scales::date_breaks(date_break), 
+                     date_labels = "%I:%M %p") + 
+    ylab("METs (x10)") +
+    theme_few()
+  
+  return(plot)
+  
+}

@@ -68,6 +68,20 @@ shinyServer(function(input, output) {
     
   })
   
+  id_mets <- reactive({
+    
+    validate(
+      need(input$mets_id != "", '')
+    )
+    input$mets_id
+  })
+  
+  output$mets <- renderPlot({
+    
+    mets_plot(id_mets())
+    
+  })
+  
 })
   
  
