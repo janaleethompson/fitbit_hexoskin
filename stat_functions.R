@@ -76,8 +76,10 @@ resthr_loop <- function(ids, average, block) {
 
 perc_max <- function(id) {
   
+  part <- id
+  
   stats <- readRDS("data/id_stats.rds")
-  stats <- filter(stats, id == id)
+  stats <- filter(stats, id == part)
   avg <- stats$average_hr
   max <- stats$pred_max_hr
   
@@ -86,6 +88,7 @@ perc_max <- function(id) {
   resting <- resting$resting_at_work
   
   perc_max <- ((avg-resting)/(max-resting))*100
+  perc_max <- data.frame(ID = id, percent_max = perc_max)
   return(perc_max)
   
 }
@@ -116,62 +119,9 @@ percmax_loop <- function(ids) {
   
 }
 
-# basal metabolic rate
-# men: 10*(weight(kg)) + 6.25*(height(cm)) - 5*(age(years)) + 5
-# women: 10*(weight(kg)) + 6.25*(height(cm)) - 5*(age(years)) - 161
-
-# already calculated 
-
-bmr <- function(ID) {
-  
-  stats <- readRDS("data/id_stats.rds")
-  stats <- filter(stats, id == ID)
-  weight <- stats$weight_kg
-  age <- stats$age
-  height <- stats$height_cm
-  
-  if (gender == "M") {
-    
-    bmr <- 10*weight + 6.25*height - 5*age + 5
-    
-  } else {
-    
-    bmr <- 10*weight + 6.25*height - 5*age - 161
-    
-  }
-  
-  return(bmr)
-  
-}
-
-bmr_loop <- function(ids) {
-  
-  for (i in 1:length(ids)) {
-    
-    possibleError <- tryCatch({
-      
-      df <- bmr(ids[i])
-      if(i == 1){
-        out <- df
-      } else {
-        out <- rbind(out, df)
-      }
-      
-    }, error = function(e) {
-      e
-      message(paste0("problem with ID ", ids[i]))
-    })
-    
-    if(inherits(possibleError, "error")) next
-    
-  }
-  
-  return(out)
-  
-}
-
-
-
+#out <- percmax_loop(ids)
+#saveRDS(out, file = "data/percent_max.rds")
+# missing stat info for 910n
 
 # step counts, heart rate for devices: two sample t-test 
 
