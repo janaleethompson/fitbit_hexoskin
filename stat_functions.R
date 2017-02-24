@@ -2,6 +2,7 @@ ids <- readRDS("data/unique_ids.rds")
 
 # resting heartrate at work 
 # block is the unit that you would like to calculate averages over
+# for example, average = "1 sec", and block = 15 would take the minimum of moving 15 sec averages 
 
 hr_work <- function(id, average, block) {
   
@@ -10,6 +11,7 @@ hr_work <- function(id, average, block) {
   
   df <- filter(df, Device == "hexoskin" & !is.na(heartrate))
   
+  # cutting off last 5 minutes? 
   # time <- select(df, date_time) %>% collect %>% .[["date_time"]]
   # end <- time[length(time)]
   # 
@@ -40,7 +42,6 @@ hr_work <- function(id, average, block) {
   return(out_df)
   
 }
-
 
 resthr_loop <- function(ids, average, block) {
   
@@ -178,7 +179,6 @@ stepcountttest_loop <- function(ids) {
 }
 
 # 200n 202n 301n 122w, 123w, 913n
-# missing fitbit data for 122w, 123w, 913n 
 # ids <- ids[!ids %in% c("200n", "202n", "301n", "122w", "123w", "913n")]
 
 # out <- stepcountttest_loop(ids)
@@ -199,7 +199,7 @@ stepcountttest_loop <- function(ids) {
 
 library(ICC)
 
-icc <- function(id, alpha = 0.05) {
+icc_hr <- function(id, alpha = 0.05) {
   
   df <- heartrate_df(id)
   df <- df %>% select(-date_time) %>%
@@ -218,13 +218,13 @@ icc <- function(id, alpha = 0.05) {
   
 }
 
-icc_loop <- function(ids) {
+icchr_loop <- function(ids) {
   
   for (i in 1:length(ids)) {
     
     possibleError <- tryCatch({
       
-      df <- icc(ids[i])
+      df <- icc_hr(ids[i])
       
       if (i == 1) {
         out <- df
@@ -245,12 +245,9 @@ icc_loop <- function(ids) {
   
 }
 
-# out <- icc_loop(ids)
-# saveRDS(out, "data/icc.rds")
-
-
-# resting heart rate estimation 
-# make note of problem IDs
+# H4 
+# out <- icchr_loop(ids)
+# saveRDS(out, "data/icc_heartrate.rds")
 
 
 # looking into resting heartrate problem: getting results that are too low:
@@ -295,7 +292,7 @@ exp_plots <- function(ids, dir, averaging) {
 }
 
 
-#exp_plots(ids, "rest_hr", 1)
+# exp_plots(ids, "rest_hr", 1)
 
 # H5: active workers will take significantly more steps throughout their work-shift
 # than sedentary workers 
@@ -318,6 +315,7 @@ saveRDS(test, file = "data/active_sed_steps.rds")
 
 
 # H6: active workers will have a greater mean percent heart rate increase 
+
 
 # H3 fitbit measures of heartrate > hexoskin 
 
@@ -371,7 +369,6 @@ heartratettest_loop <- function(ids) {
   
 }
 
-
 # out <- heartratettest_loop(ids)
 # problem w/ 122w, 123w, 913n
 # out <- mutate(out, sig = if_else(p_value < 0.05, TRUE, FALSE))
@@ -398,7 +395,7 @@ if (variance > 0.05) {
 saveRDS(test, file = "data/active_sed_percmax.rds")
 
 
-# H8 ... unclear
+# H8 
 
 mets_test <- function(id) {
   
@@ -406,14 +403,86 @@ mets_test <- function(id) {
   
 }
 
-# clean up this file, specify which hypotheses correspond to which files, 
-# how to interpret them (r markdown might be helpful)
+# H2
 
-# email Janalee about H8 and H6 
+icc_steps <- function(id, alpha = 0.05) {
+  
+  df <- stepcount_df(id)
+  df <- df %>% select(-date_time) %>%
+    filter(!is.na(steps))
+  
+  coef <- ICC::ICCest(x = Device, y = steps, data = df, alpha = alpha)
+  icc <- round(coef$ICC, 4)
+  
+  lci <- round(coef$LowerCI, 4)
+  uci <- round(coef$UpperCI, 4)
+  
+  ci <- paste0("(", lci, ", ", uci, ")")
+  
+  out <- data.frame(ID = id, ICC = icc, CI = ci)
+  return(out)
+  
+}
 
-# still need to do H4 I think 
+iccsteps_loop <- function(ids) {
+  
+  for (i in 1:length(ids)) {
+    
+    possibleError <- tryCatch({
+      
+      df <- icc_steps(ids[i])
+      
+      if (i == 1) {
+        out <- df
+      } else {
+        out <- rbind(out, df)
+      }
+      
+    }, error = function(e) {
+      e
+      message(paste0("problem with ID ", ids[i]))
+    })
+    
+    if(inherits(possibleError, "error")) next
+    
+  }
+  
+  return(out)
+  
+}
+
+# out <- iccsteps_loop(ids)
+# problem with 122w, 123w, 200n, 202n, 301n, 913n
+# saveRDS(out, "data/icc_steps.rds")
 
 
+
+# H1: Fitbit step counts > Hexoskin 
+h1 <- readRDS("data/stepcount_ttest.rds")
+
+# H2: Fitbit and Hexoskin will have good inter method reliability for step counts 
+h2 <- readRDS("data/icc_steps.rds")
+
+# H3: Hexoskin and Fitbit heart rate measures will be significantly different - Fitbit will overestimate heart rate
+h3 <- readRDS("data/heartrate_ttest.rds")
+
+# H4: Fitbit and Hexoskin will have poor inter-method reliability for heart rate measures 
+h3 <- readRDS("data/icc_heartrate.rds")
+
+# H5: Active workers will take significantly more steps than sedentary workers
+h5 <- readRDS("data/active_sed_steps.rds")
+
+# H6: Active workers will have a greater mean percent heart rate increase than sedentary workers 
+
+# H7: Active workers will have a greater percent maximum heart rate range than sedentary workers 
+h7 <- readRDS("data/active_sed_percmax.rds")
+
+# H8: Active workers will have increased energy expenditure than sedentary workers 
+
+mets_test <- function(id) {
+  df <- readRDS(paste0("data/", id, "_mets_clean.rds"))
+  # ... 
+}
 
 
 
