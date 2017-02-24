@@ -406,6 +406,12 @@ mets_test <- function(id) {
   
 }
 
+# clean up this file, specify which hypotheses correspond to which files, 
+# how to interpret them (r markdown might be helpful)
+
+# email Janalee about H8 and H6 
+
+# still need to do H4 I think 
 
 
 
