@@ -1298,7 +1298,7 @@ stepcount_plot <- function(id, filter = TRUE) {
 
 # METs 
 
-mets <- function(id) {
+mets <- function(id, hourly = TRUE) {
   
   shift <- heartrate_df(id)
   shift <- shift %>% select(date_time) %>% collect %>% .[["date_time"]]
@@ -1332,14 +1332,28 @@ mets <- function(id) {
   }
   
   mets <- mets %>%  
-    filter(date_time >= start & date_time <= stop) %>%
-    group_by(date_time = cut(date_time, breaks = "1 hour")) %>%
-    summarize(mets = mean(mets, na.rm = TRUE)) %>%
-    ungroup(date_time) %>%
-    mutate(mets = round(mets, 2), 
-           date_time = lubridate::ymd_hms(date_time))
+    filter(date_time >= start & date_time <= stop) 
   
-  return(mets)
+  if (hourly == TRUE) {
+    
+    mets_hourly <- mets %>% 
+      group_by(date_time = cut(date_time, breaks = "1 hour")) %>%
+      summarize(mets = mean(mets, na.rm = TRUE)) %>%
+      ungroup(date_time) %>%
+      mutate(mets = round(mets, 2), 
+             date_time = lubridate::ymd_hms(date_time))
+    
+    return(mets_hourly)
+    
+  } else {
+    
+    mean <- summarize(mets, mean_mets = mean(mets)) %>%
+      mutate(ID = id) 
+    mean <- mean[,c(2, 1)]
+    
+    return(mean)
+    
+  }
   
 }
 
