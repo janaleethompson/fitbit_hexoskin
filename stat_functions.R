@@ -304,14 +304,14 @@ sedentary <- filter(stats, dept == "Office")$steps
 variance <- var.test(active, sedentary)$p.value
   
 if (variance > 0.05) {
-  test <- t.test(active, sedentary, var.equal = TRUE, paired = FALSE)
+  test <- t.test(active, sedentary, var.equal = TRUE, paired = FALSE, alternative = "greater")
 } else {
-  test <- t.test(active, sedentary, var.equal = FALSE, paired = FALSE)
+  test <- t.test(active, sedentary, var.equal = FALSE, paired = FALSE, alternative = "greater")
 }
 
 saveRDS(test, file = "data/active_sed_steps.rds")
 
-# two-sided hypothesis vs. one-sided...hypothesis is that active > sedentary 
+
 
 
 # H6: active workers will have a greater mean percent heart rate increase 
@@ -387,9 +387,9 @@ sedentary <- filter(stats, dept == "Office")$max
 variance <- var.test(active, sedentary)$p.value
 
 if (variance > 0.05) {
-  test <- t.test(active, sedentary, var.equal = TRUE, paired = FALSE)
+  test <- t.test(active, sedentary, var.equal = TRUE, paired = FALSE, alternative = "greater")
 } else {
-  test <- t.test(active, sedentary, var.equal = FALSE, paired = FALSE)
+  test <- t.test(active, sedentary, var.equal = FALSE, paired = FALSE, alternative = "greater")
 }
 
 saveRDS(test, file = "data/active_sed_percmax.rds")
@@ -458,23 +458,29 @@ iccsteps_loop <- function(ids) {
 
 
 # H1: Fitbit step counts > Hexoskin 
+# one-sided t test, paired
 h1 <- readRDS("data/stepcount_ttest.rds")
 
 # H2: Fitbit and Hexoskin will have good inter method reliability for step counts 
+# ICC
 h2 <- readRDS("data/icc_steps.rds")
 
 # H3: Hexoskin and Fitbit heart rate measures will be significantly different - Fitbit will overestimate heart rate
+# one-sided t test, paried 
 h3 <- readRDS("data/heartrate_ttest.rds")
 
 # H4: Fitbit and Hexoskin will have poor inter-method reliability for heart rate measures 
+# ICC
 h3 <- readRDS("data/icc_heartrate.rds")
 
 # H5: Active workers will take significantly more steps than sedentary workers
+# one-sided t test, not paired 
 h5 <- readRDS("data/active_sed_steps.rds")
 
 # H6: Active workers will have a greater mean percent heart rate increase than sedentary workers 
 
 # H7: Active workers will have a greater percent maximum heart rate range than sedentary workers 
+# one-sided t test, not paired 
 h7 <- readRDS("data/active_sed_percmax.rds")
 
 # H8: Active workers will have increased energy expenditure than sedentary workers 
@@ -483,8 +489,3 @@ mets_test <- function(id) {
   df <- readRDS(paste0("data/", id, "_mets_clean.rds"))
   # ... 
 }
-
-
-
-
-
